@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CustomizationState, CartItem } from '../types';
-import { CHARACTER_OPTIONS, FONT_OPTIONS_SUBJECT, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
-import { Palette, Sparkles, Image, Type, ShoppingBag, Check, ShieldCheck, Upload } from 'lucide-react';
+import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -12,8 +12,8 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const navigate = useNavigate();
   const [state, setState] = useState<CustomizationState>({
     subject: 'MATEMÁTICAS',
-    studentName: 'Nombre del Alumno',
-    bgColor: '#F8F9FA',
+    studentName: 'Sofía Pérez',
+    bgColor: '#FFB6C1',
     bgType: 'solid',
     bgImage: '',
     characterImg: CHARACTER_OPTIONS[0].svg,
@@ -22,7 +22,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     studentFont: 'Pacifico',
     subjectGraphicStyle: 'style-pop-pink',
     spineText: 'MATEMÁTICAS',
-    isPackage: true // default pack of 6 ($120 c/u)
+    isPackage: true
   });
 
   const [customCharUrl, setCustomCharUrl] = useState('');
@@ -41,7 +41,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
         setState(prev => ({
           ...prev,
           characterImg: result,
-          characterName: 'Imagen Personalizada Subida'
+          characterName: 'Imagen Personalizada'
         }));
       };
       reader.readAsDataURL(file);
@@ -74,11 +74,11 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
   const COLOR_PRESETS = [
     { name: 'Rosa Pastel', hex: '#FFB6C1' },
-    { name: 'Fucsia', hex: '#FF2D55' },
-    { name: 'Azul Claro', hex: '#4D96FF' },
+    { name: 'Fucsia Neón', hex: '#FF2D55' },
+    { name: 'Azul Cielo', hex: '#4D96FF' },
     { name: 'Verde Ciencias', hex: '#6BCB77' },
-    { name: 'Amarillo', hex: '#FFD93D' },
-    { name: 'Lila', hex: '#B983FF' },
+    { name: 'Amarillo Sol', hex: '#FFD93D' },
+    { name: 'Lila Mágico', hex: '#B983FF' },
     { name: 'Azul Noche', hex: '#1E2430' },
     { name: 'Borgoña', hex: '#740001' },
     { name: 'Esmeralda', hex: '#1A472A' },
@@ -88,31 +88,39 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      {/* Breadcrumbs */}
-      <div className="text-xs text-[#595959] mb-6 flex items-center gap-2">
-        <button onClick={() => navigate('/')} className="hover:underline">Inicio</button> 
-        <span>/</span>
-        <span className="font-semibold">Diseño 100% Personalizado</span>
+      {/* Back Header */}
+      <div className="flex items-center justify-between mb-6">
+        <button 
+          onClick={() => navigate('/')} 
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver al Catálogo
+        </button>
+        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+          Estudio de Personalización 2026
+        </span>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Left Column: Interactive 360 Preview (Etsy Style: Large Main Image) */}
-        <div className="w-full lg:w-3/5">
-          <div className="bg-[#f1f1f1] rounded-xl overflow-hidden shadow-sm border border-[#E1E3DF] p-8 flex items-center justify-center min-h-[500px]">
-             
-             {/* The Notebook Wrapper directly matching CSS */}
-             <div 
-              className="notebook-continuous-wrapper w-full max-w-2xl transition-all duration-300 shadow-xl"
+        {/* Left: Interactive 3D Cover Visualizer */}
+        <div className="lg:col-span-7">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[480px] sticky top-24">
+            
+            <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4">
+              Vista 360° en Tiempo Real (Frente, Lomo y Vuelta)
+            </div>
+
+            {/* Notebook Continuous 3D Wrapper */}
+            <div 
+              className="notebook-continuous-wrapper w-full max-w-lg transition-all duration-300 shadow-2xl"
               style={{
-                backgroundColor: state.bgType === 'solid' ? state.bgColor : '#ffffff',
-                backgroundImage: state.bgType === 'full_image' && state.bgImage ? `url(${state.bgImage})` : 'none',
-                backgroundSize: 'cover'
+                backgroundColor: state.bgColor
               }}
             >
               {/* Back Cover */}
               <div className="cover-back">
-                <span className="text-[10px] font-extrabold text-black/40 uppercase">Contraportada</span>
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contraportada</span>
               </div>
               {/* Spine */}
               <div className="cover-spine">
@@ -120,21 +128,23 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               </div>
               {/* Front Cover */}
               <div className="cover-front">
-                <div className="text-center w-full pt-1">
-                  <span className={`${state.subjectGraphicStyle} text-3xl font-extrabold block truncate px-1`}>
+                <div className="text-center w-full pt-2">
+                  <span className={`${state.subjectGraphicStyle} text-2xl font-black block truncate px-1`}>
                     {state.subject || 'MATERIA'}
                   </span>
                 </div>
-                <div className="my-auto">
+                
+                <div className="my-auto py-2">
                   <img
                     src={state.characterImg}
                     alt={state.characterName}
-                    className="w-32 h-32 object-contain filter drop-shadow-xl transition-transform duration-300"
+                    className="w-28 h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
                   />
                 </div>
-                <div className="text-center w-full pb-1">
+
+                <div className="text-center w-full pb-2">
                   <span 
-                    className="text-gray-900 text-xl font-bold block truncate px-1"
+                    className="text-slate-900 text-lg font-bold block truncate px-1"
                     style={{ fontFamily: state.studentFont }}
                   >
                     {state.studentName || 'Nombre del Alumno'}
@@ -143,135 +153,151 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               </div>
             </div>
 
-          </div>
-          
-          <div className="mt-8 space-y-4 text-sm text-[#222222]">
-            <h3 className="font-bold text-xl mb-4 border-b pb-2">Descripción del artículo</h3>
-            <p className="leading-relaxed">Crea tu propio diseño desde cero. Ideal para materias específicas que requieren colores exactos o personajes que no están en el catálogo. Todo el proceso es monitoreado para asegurar que tu diseño cumpla con los lineamientos escolares.</p>
+            <p className="text-[11px] text-slate-400 mt-6 text-center">
+              * El color liso seleccionado ({state.bgColor}) cubrirá la totalidad de la libreta para cumplir el código escolar.
+            </p>
+
           </div>
         </div>
 
-        {/* Right Column: Customization Controls (Etsy Style right panel) */}
-        <div className="w-full lg:w-2/5 space-y-6">
-          
-          <div>
-            <div className="text-sm text-[#F1651D] font-bold mb-1">LibretasUnicasMX</div>
-            <h1 className="text-2xl font-light text-[#222222] leading-tight mb-2">
-              Diseño de Libreta 100% Personalizado a Medida
-            </h1>
+        {/* Right: Customization Controls Form */}
+        <div className="lg:col-span-5">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6">
             
-            <div className="text-3xl font-bold text-[#222222] mt-4">
-              ${totalPrice.toFixed(2)} MXN
-            </div>
-            <div className="text-sm text-[#595959] mt-1">Precio varía según modalidad elegida.</div>
-          </div>
-
-          <div className="space-y-5 pt-4 border-t border-[#E1E3DF]">
-            
-            {/* Modalidad */}
             <div>
-              <label className="block text-sm font-bold text-[#222222] mb-1">
-                Modalidad de Compra
-              </label>
-              <select 
-                className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222]"
-                value={state.isPackage ? 'package' : 'single'}
-                onChange={(e) => setState(prev => ({ ...prev, isPackage: e.target.value === 'package' }))}
-              >
-                <option value="package">Paquete de 6 Libretas ($120 c/u - Total $720)</option>
-                <option value="single">Libreta Individual (1 pza - Total $150)</option>
-              </select>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-xs font-bold mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Diseño 100% a Medida</span>
+              </div>
+              <h1 className="text-2xl font-black text-slate-900 leading-tight">
+                Personalizador de Forro Adhesivo
+              </h1>
+              <div className="text-2xl font-black text-slate-900 mt-2">
+                ${totalPrice.toFixed(2)} <span className="text-sm font-normal text-slate-500">MXN</span>
+              </div>
             </div>
 
-            {/* Background Color */}
-            <div>
-              <label className="block text-sm font-bold text-[#222222] mb-2 flex items-center gap-2">
-                <Palette className="w-4 h-4"/> Color de Fondo
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {COLOR_PRESETS.map((color) => (
+            <div className="space-y-4 pt-2 border-t border-slate-100">
+              
+              {/* Modalidad */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2">
+                  1. Modalidad
+                </label>
+                <div className="grid grid-cols-2 gap-3">
                   <button
-                    key={color.hex}
-                    onClick={() => setState(prev => ({ ...prev, bgColor: color.hex, bgType: 'solid' }))}
-                    className={`w-8 h-8 rounded-full border border-[#E1E3DF] transition-transform ${
-                      state.bgColor === color.hex && state.bgType === 'solid' ? 'ring-2 ring-offset-2 ring-[#222222]' : 'hover:scale-110'
+                    type="button"
+                    onClick={() => setState(prev => ({ ...prev, isPackage: true }))}
+                    className={`p-3 rounded-xl border text-xs font-bold transition-all ${
+                      state.isPackage ? 'border-indigo-600 bg-indigo-50 text-indigo-950' : 'border-slate-200 text-slate-600'
                     }`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
+                  >
+                    Paquete de 6 ($120 c/u)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setState(prev => ({ ...prev, isPackage: false }))}
+                    className={`p-3 rounded-xl border text-xs font-bold transition-all ${
+                      !state.isPackage ? 'border-indigo-600 bg-indigo-50 text-indigo-950' : 'border-slate-200 text-slate-600'
+                    }`}
+                  >
+                    1 Libreta ($150 c/u)
+                  </button>
+                </div>
+              </div>
+
+              {/* Color Presets */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Palette className="w-4 h-4 text-indigo-500" /> 2. Color de Fondo Reglamentario
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {COLOR_PRESETS.map((color) => (
+                    <button
+                      key={color.hex}
+                      onClick={() => setState(prev => ({ ...prev, bgColor: color.hex }))}
+                      className={`h-9 rounded-xl border border-slate-300 transition-transform ${
+                        state.bgColor === color.hex ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105' : 'hover:scale-105'
+                      }`}
+                      style={{ backgroundColor: color.hex }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Character Upload */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Image className="w-4 h-4 text-indigo-500" /> 3. Imagen o Logo Central (PNG)
+                </label>
+                <label className="flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/50 cursor-pointer rounded-2xl text-xs font-bold text-slate-700 transition-colors">
+                  <Upload className="w-4 h-4 text-indigo-500" />
+                  <span>{state.characterName || 'Subir Imagen PNG Transparente'}</span>
+                  <input type="file" accept="image/*" onChange={handleCustomImageUpload} className="hidden" />
+                </label>
+              </div>
+
+              {/* Text Controls */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Materia</label>
+                  <input 
+                    type="text" 
+                    value={state.subject}
+                    onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
                   />
-                ))}
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Estilo de Materia</label>
+                  <select
+                    value={state.subjectGraphicStyle}
+                    onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
+                  >
+                    {GRAPHIC_STYLES.map((style) => (
+                      <option key={style.id} value={style.id}>{style.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
 
-            {/* Character Upload / Select */}
-            <div>
-              <label className="block text-sm font-bold text-[#222222] mb-2 flex items-center gap-2">
-                <Image className="w-4 h-4"/> Personaje o Logo Central
-              </label>
-              <label className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-[#E1E3DF] bg-[#F8F9FA] hover:bg-gray-100 cursor-pointer text-sm text-[#595959] transition-colors rounded-md">
-                <Upload className="w-4 h-4" />
-                <span>Subir archivo PNG transparente</span>
-                <input type="file" accept="image/*" onChange={handleCustomImageUpload} className="hidden" />
-              </label>
-            </div>
-
-            {/* Text Inputs */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-[#222222] mb-1">Materia</label>
-                <input 
-                  type="text" 
-                  value={state.subject}
-                  onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
-                  className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222]"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Alumno</label>
+                  <input 
+                    type="text" 
+                    value={state.studentName}
+                    onChange={(e) => setState(prev => ({ ...prev, studentName: e.target.value }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Tipografía Alumno</label>
+                  <select
+                    value={state.studentFont}
+                    onChange={(e) => setState(prev => ({ ...prev, studentFont: e.target.value }))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
+                  >
+                    {FONT_OPTIONS_STUDENT.map((font) => (
+                      <option key={font.value} value={font.value}>{font.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-[#222222] mb-1">Estilo de Letra</label>
-                <select
-                  value={state.subjectGraphicStyle}
-                  onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
-                  className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222] bg-white"
+
+              {/* CTA */}
+              <div className="pt-3">
+                <button 
+                  onClick={handleAddCustomToCart}
+                  className="w-full bg-indigo-600 hover:bg-slate-900 text-white font-extrabold py-4 rounded-2xl shadow-xl shadow-indigo-500/25 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  {GRAPHIC_STYLES.map((style) => (
-                    <option key={style.id} value={style.id}>{style.name}</option>
-                  ))}
-                </select>
+                  <ShoppingBag className="w-5 h-5" />
+                  <span>Añadir Pedido Custom (${totalPrice} MXN)</span>
+                </button>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold text-[#222222] mb-1">Alumno</label>
-                <input 
-                  type="text" 
-                  value={state.studentName}
-                  onChange={(e) => setState(prev => ({ ...prev, studentName: e.target.value }))}
-                  className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-[#222222] mb-1">Tipografía</label>
-                <select
-                  value={state.studentFont}
-                  onChange={(e) => setState(prev => ({ ...prev, studentFont: e.target.value }))}
-                  className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222] bg-white"
-                >
-                  {FONT_OPTIONS_STUDENT.map((font) => (
-                    <option key={font.value} value={font.value}>{font.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Add to cart */}
-            <div className="pt-4">
-              <button 
-                onClick={handleAddCustomToCart}
-                className="w-full bg-[#222222] hover:bg-black text-white font-bold rounded-full py-4 text-base transition-colors flex items-center justify-center gap-2"
-              >
-                Añadir al carrito
-              </button>
             </div>
 
           </div>

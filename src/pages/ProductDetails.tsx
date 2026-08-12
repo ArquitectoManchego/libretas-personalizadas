@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CATALOG_DESIGNS } from '../data/catalog';
 import { CartItem } from '../types';
-import { Check, ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Check, ArrowLeft, ShoppingBag, Sparkles, Layers, Type } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ProductDetailsProps {
   onAddToCart: (item: CartItem) => void;
@@ -13,12 +14,20 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ onAddToCart }) =
   const navigate = useNavigate();
   const design = CATALOG_DESIGNS.find((item) => item.id === id);
 
-  const [subject, setSubject] = useState(design?.defaultSubject || '');
-  const [studentName, setStudentName] = useState(design?.defaultStudentName || '');
+  const [subject, setSubject] = useState(design?.defaultSubject || 'MATEMÁTICAS');
+  const [studentName, setStudentName] = useState(design?.defaultStudentName || 'Sofía Pérez');
   const [isPackage, setIsPackage] = useState(true);
+  const [showLiveOverlay, setShowLiveOverlay] = useState(true);
 
   if (!design) {
-    return <div className="p-8 text-center text-gray-500">Producto no encontrado.</div>;
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-slate-500">
+        <p className="text-lg font-semibold mb-4">Diseño no encontrado en el catálogo.</p>
+        <button onClick={() => navigate('/')} className="bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold">
+          Volver al catálogo
+        </button>
+      </div>
+    );
   }
 
   const unitPrice = isPackage ? 80 : 100;
@@ -48,140 +57,236 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ onAddToCart }) =
     };
 
     onAddToCart(cartItem);
-    // Simulating Etsy's add to cart behavior (opening cart drawer is handled globally usually, here we might just navigate or open)
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      {/* Breadcrumbs */}
-      <div className="text-xs text-[#595959] mb-4 flex items-center gap-2">
-        <button onClick={() => navigate('/')} className="hover:underline">Inicio</button> 
-        <span>/</span>
-        <span className="capitalize">{design.category.replace('_', ' ')}</span>
-        <span>/</span>
-        <span className="font-semibold">{design.title}</span>
+      {/* Back Button & Breadcrumbs */}
+      <div className="flex items-center justify-between mb-6">
+        <button 
+          onClick={() => navigate('/')} 
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-4 py-2 rounded-full shadow-sm transition-all"
+        >
+          <ArrowLeft className="w-4 h-4" /> Volver al Catálogo
+        </button>
+        <div className="text-xs text-slate-400 font-medium hidden sm:block">
+          Catálogo / <span className="capitalize">{design.category.replace('_', ' ')}</span> / <span className="text-slate-800 font-bold">{design.title}</span>
+        </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-10">
+      {/* Main Grid: Split Screen */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Left Column: Image Gallery */}
-        <div className="w-full lg:w-3/5">
-          <div className="bg-[#f1f1f1] rounded-xl overflow-hidden shadow-sm border border-[#E1E3DF]">
-            {design.image ? (
-              <img src={design.image} alt={design.title} className="w-full h-auto object-cover" />
-            ) : (
-              <div className="w-full aspect-square flex items-center justify-center" style={{ backgroundColor: design.bgColor }}>
-                <span className={`${design.subjectGraphicStyle} text-3xl`}>{design.defaultSubject}</span>
-              </div>
-            )}
+        {/* Left Column: Interactive Product Image Visualizer */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="relative bg-white rounded-3xl p-4 border border-slate-200 shadow-xl overflow-hidden group">
+            
+            {/* Live Visualizer Image */}
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center">
+              {design.image ? (
+                <img 
+                  src={design.image} 
+                  alt={design.title} 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: design.bgColor }}>
+                  <span className={`${design.subjectGraphicStyle} text-3xl font-bold`}>{subject}</span>
+                </div>
+              )}
+
+              {/* Dynamic Live Text Overlay Simulation */}
+              {showLiveOverlay && (
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 bg-black/10 transition-opacity">
+                  {/* Top Live Subject Overlay */}
+                  <div className="w-full text-center bg-white/70 backdrop-blur-md rounded-xl py-2 px-3 shadow-md border border-white/40">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Vista Previa Materia:</span>
+                    <span className={`${design.subjectGraphicStyle} text-xl sm:text-2xl font-black block truncate`}>
+                      {subject || 'MATERIA'}
+                    </span>
+                  </div>
+
+                  {/* Bottom Live Student Name Overlay */}
+                  <div className="w-full text-center bg-white/70 backdrop-blur-md rounded-xl py-2 px-3 shadow-md border border-white/40">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block">Alumno:</span>
+                    <span 
+                      className="text-slate-900 text-lg sm:text-xl font-bold block truncate"
+                      style={{ fontFamily: design.studentFont }}
+                    >
+                      {studentName || 'Nombre del Alumno'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Toggle Overlay View Button */}
+            <button 
+              onClick={() => setShowLiveOverlay(!showLiveOverlay)}
+              className="mt-3 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full transition-colors inline-flex items-center gap-1.5"
+            >
+              <Type className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{showLiveOverlay ? 'Ocultar superposición de texto' : 'Ver con texto personalizado'}</span>
+            </button>
+
           </div>
-          
-          <div className="mt-8 space-y-4 text-sm text-[#222222]">
-            <h3 className="font-bold text-xl mb-4 border-b pb-2">Descripción del artículo</h3>
-            <p className="leading-relaxed whitespace-pre-wrap">{design.description}</p>
-            <div className="flex items-center gap-2 bg-[#F8F9FA] p-4 rounded-lg mt-4 border border-[#E1E3DF]">
-              <ShieldCheck className="w-5 h-5 text-gray-500" />
-              <span><strong>Fondo Liso Reglamentario:</strong> Este color ({design.bgColor}) ayuda a cumplir la regla del código de color escolar.</span>
+
+          {/* Product Specifications Card */}
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-indigo-600" />
+              <span>Especificaciones Técnicas del Forro</span>
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {design.description}
+            </p>
+            <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-slate-700">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <strong>Material:</strong> Vinil Adhesivo Plastificado MATE/BRILLO
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <strong>Cobertura:</strong> Lomo Continuo (Frente, lomo y vuelta)
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <strong>Resistencia:</strong> 100% Resistente al Agua y Rayaduras
+              </div>
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <strong>Reglamentación:</strong> Fondo Liso Oficial ({design.bgColor})
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Details & Actions */}
-        <div className="w-full lg:w-2/5 space-y-6">
+        {/* Right Column: Customization Controls Panel */}
+        <div className="lg:col-span-5 space-y-6">
           
-          <div>
-            <div className="text-sm text-pink-600 font-bold mb-1">LibretasUnicasMX</div>
-            <h1 className="text-2xl font-light text-[#222222] leading-tight mb-2">
-              Forro Adhesivo Personalizado - {design.title}
-            </h1>
-            <div className="flex items-center gap-1 mb-4">
-              <span className="text-yellow-500">★★★★★</span>
-              <span className="text-sm text-[#595959] underline">128 reseñas</span>
-            </div>
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6">
             
-            <div className="text-3xl font-bold text-[#222222]">
-              ${totalPrice.toFixed(2)} MXN
-            </div>
-            {isPackage && <div className="text-xs text-green-700 font-semibold mt-1">✓ Descuento de paquete aplicado</div>}
-            <div className="text-sm text-[#595959] mt-1">IVA incluido (donde corresponda).</div>
-          </div>
-
-          <div className="space-y-4 pt-4 border-t border-[#E1E3DF]">
-            
-            {/* Modalidad Selector */}
+            {/* Header Title & Ratings */}
             <div>
-              <label className="block text-sm font-bold text-[#222222] mb-1">
-                Modalidad de Compra <span className="text-red-500">*</span>
-              </label>
-              <select 
-                className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222] bg-white shadow-sm"
-                value={isPackage ? 'package' : 'single'}
-                onChange={(e) => setIsPackage(e.target.value === 'package')}
-              >
-                <option value="package">Paquete de 6 Libretas ($80 c/u - Total $480)</option>
-                <option value="single">Libreta Individual (1 pza - Total $100)</option>
-              </select>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 border border-pink-200 text-pink-600 text-xs font-bold mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Edición Escolar 2025-2026</span>
+              </div>
+              <h1 className="text-2xl font-black text-slate-900 leading-tight">
+                Forro Adhesivo - {design.title}
+              </h1>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex text-amber-400 text-sm">★★★★★</div>
+                <span className="text-xs font-bold text-slate-500">(128 valoraciones de padres de familia)</span>
+              </div>
             </div>
 
-            {/* Customization Inputs */}
-            <div>
-              <label className="block text-sm font-bold text-[#222222] mb-1">
-                Nombre de la Materia <span className="text-red-500">*</span>
-              </label>
-              <input 
-                type="text" 
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222] shadow-sm"
-                placeholder="Ej. MATEMÁTICAS"
-              />
+            {/* Price Display */}
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Precio Final</span>
+                <span className="text-3xl font-black text-slate-900">${totalPrice.toFixed(2)} <span className="text-sm font-normal text-slate-500">MXN</span></span>
+              </div>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-full">
+                ${unitPrice}.00 MXN / pza
+              </span>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-[#222222] mb-1">
-                Nombre del Alumno <span className="text-red-500">*</span>
-              </label>
-              <p className="text-xs text-[#595959] mb-2">Ingresa el nombre exactamente como quieres que aparezca en la portada inferior.</p>
-              <input 
-                type="text" 
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-                className="w-full border border-[#E1E3DF] rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#222222] shadow-sm"
-                placeholder="Ej. Sofía Martínez"
-              />
+            {/* Form Inputs */}
+            <div className="space-y-4">
+              
+              {/* Pack Selector */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2">
+                  1. Modalidad de Compra
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsPackage(true)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      isPackage 
+                        ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20 font-bold text-indigo-950' 
+                        : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    <span className="text-xs font-bold block">Paquete de 6</span>
+                    <span className="text-xs text-slate-500 font-normal">$80 MXN c/u ($480 Total)</span>
+                    <span className="text-[10px] text-emerald-600 font-extrabold block mt-1">¡Ahorras 20%!</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPackage(false)}
+                    className={`p-3.5 rounded-2xl border text-left transition-all ${
+                      !isPackage 
+                        ? 'border-indigo-600 bg-indigo-50/50 ring-2 ring-indigo-500/20 font-bold text-indigo-950' 
+                        : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    <span className="text-xs font-bold block">Individual (1 pza)</span>
+                    <span className="text-xs text-slate-500 font-normal">$100 MXN c/u</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Subject Input */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-1.5">
+                  2. Nombre de la Materia *
+                </label>
+                <input 
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl p-3.5 text-sm font-semibold text-slate-900 outline-none transition-all"
+                  placeholder="Ej. MATEMÁTICAS I"
+                />
+              </div>
+
+              {/* Student Name Input */}
+              <div>
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-1.5">
+                  3. Nombre Completo del Alumno *
+                </label>
+                <input 
+                  type="text"
+                  value={studentName}
+                  onChange={(e) => setStudentName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:bg-white rounded-xl p-3.5 text-sm font-semibold text-slate-900 outline-none transition-all"
+                  placeholder="Ej. Sofía Pérez Martínez"
+                />
+                <span className="text-[11px] text-slate-400 mt-1 block">Aparecerá en la tipografía cursiva especial en la parte inferior.</span>
+              </div>
+
             </div>
 
-            {/* Add to cart */}
+            {/* CTA Button */}
             <div className="pt-2">
               <button 
                 onClick={handleAddToCart}
-                className="w-full bg-[#222222] hover:bg-black text-white font-bold rounded-full py-4 text-base transition-colors shadow-sm flex items-center justify-center gap-2"
+                className="w-full bg-slate-900 hover:bg-indigo-600 text-white font-extrabold py-4 px-6 rounded-2xl shadow-xl shadow-slate-900/20 hover:shadow-indigo-500/25 transition-all duration-300 flex items-center justify-center gap-2 group text-base"
               >
-                Añadir al carrito
+                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>Añadir al Carrito (${totalPrice} MXN)</span>
               </button>
             </div>
 
-            {/* Badges / Assurances */}
-            <div className="flex flex-col gap-3 mt-6">
-              <div className="flex items-center gap-3 text-sm text-[#222222]">
-                <Check className="w-5 h-5 text-green-600" />
-                <span><strong>Calidad garantizada.</strong> Impresión láser de alta resolución.</span>
+            {/* Trust Bullet List */}
+            <div className="pt-4 border-t border-slate-100 space-y-2 text-xs font-medium text-slate-600">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span>Impresión directa lista para despegar y pegar.</span>
               </div>
-              <div className="flex items-center gap-3 text-sm text-[#222222]">
-                <Check className="w-5 h-5 text-green-600" />
-                <span><strong>Material adhesivo plastificado.</strong> Resiste agua y desgaste escolar.</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-[#222222]">
-                <Check className="w-5 h-5 text-green-600" />
-                <span><strong>Lomo continuo.</strong> Cubre frente, lomo y reverso de la libreta.</span>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span>Garantía de coincidencia con el color de la libreta.</span>
               </div>
             </div>
 
           </div>
+
         </div>
 
       </div>
+
     </div>
   );
 };

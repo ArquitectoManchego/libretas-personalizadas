@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { CartItem } from '../types';
 import { saveOrderToFirebase } from '../firebase';
 import confetti from 'canvas-confetti';
-import { X, Trash2, Send } from 'lucide-react';
+import { X, Trash2, Send, ShoppingBag, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -19,8 +20,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart
 }) => {
-  if (!isOpen) return null;
-
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,7 +40,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     await saveOrderToFirebase(orderData);
 
     try {
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
     } catch (e) {
       console.log(e);
     }
@@ -74,94 +73,137 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 flex justify-end">
-      <div className="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between overflow-hidden animate-fade-in-right">
-        
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E1E3DF] flex items-center justify-between">
-          <h3 className="font-semibold text-lg text-[#222222]">Tu Carrito ({cart.length} artículos)</h3>
-          <button onClick={onClose} className="text-[#595959] hover:text-[#222222]">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
+          
+          {/* Backdrop Blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          />
 
-        {/* List */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {cart.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-sm text-[#595959]">Tu carrito está vacío.</p>
-              <button onClick={onClose} className="mt-4 text-[#222222] font-semibold underline underline-offset-4">
-                Seguir comprando
+          {/* Sliding Panel */}
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="relative bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between overflow-hidden z-10"
+          >
+            
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-5 h-5 text-indigo-600" />
+                <h3 className="font-extrabold text-base text-slate-900">Tu Carrito ({cart.length})</h3>
+              </div>
+              <button 
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
-          ) : (
-            cart.map((item) => (
-              <div key={item.cartId} className="flex gap-4 items-start border-b border-[#E1E3DF] pb-4">
-                
-                {/* Image / Preview */}
-                <div className="w-20 h-20 bg-[#f1f1f1] rounded-md border border-[#E1E3DF] overflow-hidden flex-shrink-0 relative">
-                  {item.image ? (
-                     <img src={item.image} alt={item.subject} className="w-full h-full object-cover"/>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[8px] font-bold text-center" style={{ backgroundColor: item.bgColor }}>
-                      <span className="text-white drop-shadow-md">{item.subject}</span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Info */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <h4 className="text-sm font-semibold text-[#222222] line-clamp-1">{item.subject}</h4>
-                    <span className="text-sm font-bold text-[#222222]">${item.totalPrice.toFixed(2)}</span>
+            {/* Cart Items List */}
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              {cart.length === 0 ? (
+                <div className="text-center py-16 space-y-3">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                    <ShoppingBag className="w-8 h-8" />
                   </div>
-                  <p className="text-xs text-[#595959] mt-1">Alumno: {item.studentName}</p>
-                  <p className="text-xs text-[#595959] mt-1">{item.isPackage ? 'Paquete 6 imp.' : '1 Libreta indiv.'}</p>
-                  
-                  <button onClick={() => onRemoveItem(item.cartId)} className="mt-2 text-xs text-[#595959] hover:text-red-600 flex items-center gap-1">
-                    <Trash2 className="w-3 h-3" /> Eliminar
+                  <p className="text-sm font-semibold text-slate-500">Tu carrito está vacío actualmente.</p>
+                  <button 
+                    onClick={onClose}
+                    className="text-xs font-extrabold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-4 py-2 rounded-full"
+                  >
+                    Explorar el Catálogo
                   </button>
                 </div>
+              ) : (
+                cart.map((item) => (
+                  <div key={item.cartId} className="flex gap-4 items-center bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80">
+                    
+                    {/* Thumbnail */}
+                    <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 overflow-hidden flex-shrink-0 relative shadow-sm">
+                      {item.image ? (
+                        <img src={item.image} alt={item.subject} className="w-full h-full object-cover"/>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-center" style={{ backgroundColor: item.bgColor }}>
+                          <span className="text-slate-900">{item.subject}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Information */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-xs font-extrabold text-slate-900 truncate">{item.subject}</h4>
+                        <span className="text-xs font-black text-slate-900 ml-2">${item.totalPrice}</span>
+                      </div>
+                      <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">Alumno: {item.studentName}</p>
+                      <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md mt-1">
+                        {item.isPackage ? 'Paquete 6 ($' + item.unitPrice + ' c/u)' : '1 Libreta ($' + item.unitPrice + ')'}
+                      </span>
+                    </div>
+
+                    {/* Delete Button */}
+                    <button 
+                      onClick={() => onRemoveItem(item.cartId)}
+                      className="text-slate-400 hover:text-rose-500 p-1.5 rounded-lg transition-colors"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Checkout Footer */}
+            {cart.length > 0 && (
+              <div className="p-6 border-t border-slate-100 bg-slate-50 space-y-4">
+                
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Tu nombre completo (para WhatsApp)"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-base font-extrabold text-slate-900 pt-1">
+                  <span>Total Final:</span>
+                  <span className="text-xl text-indigo-600">${grandTotal.toFixed(2)} MXN</span>
+                </div>
+
+                <button
+                  onClick={handleCheckoutWhatsApp}
+                  disabled={isSubmitting}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl py-4 text-xs transition-all shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 uppercase tracking-wide"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Enviar Pedido por WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={onClearCart}
+                  className="w-full text-center text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                >
+                  Vaciar carrito
+                </button>
               </div>
-            ))
-          )}
+            )}
+
+          </motion.div>
         </div>
-
-        {/* Footer Checkout */}
-        {cart.length > 0 && (
-          <div className="p-6 border-t border-[#E1E3DF] bg-[#F8F9FA] space-y-4">
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nombre para tu pedido"
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                className="w-full px-4 py-2 border border-[#E1E3DF] rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#222222]"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-base font-bold text-[#222222] pt-2">
-              <span>Total estimado</span>
-              <span>${grandTotal.toFixed(2)} MXN</span>
-            </div>
-
-            <button
-              onClick={handleCheckoutWhatsApp}
-              disabled={isSubmitting}
-              className="w-full bg-[#222222] hover:bg-black text-white font-bold rounded-full py-3.5 text-sm transition-colors flex justify-center items-center gap-2"
-            >
-              <Send className="w-4 h-4" /> Proceder al pago (WhatsApp)
-            </button>
-            <button
-              onClick={onClearCart}
-              className="w-full text-center text-xs text-[#595959] hover:text-[#222222] underline underline-offset-4"
-            >
-              Vaciar carrito
-            </button>
-          </div>
-        )}
-
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
