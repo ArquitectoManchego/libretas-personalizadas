@@ -4,6 +4,7 @@ export interface DesignItem {
   category: 'infantil' | 'harry_potter';
   characterName: string;
   characterImg: string;
+  image?: string; // Real photograph for catalog
   bgColor: string;
   bgType: 'solid' | 'full_pattern' | 'full_image';
   bgImage?: string;
@@ -27,6 +28,7 @@ export interface CartItem {
   bgImage?: string;
   characterImg: string;
   characterName: string;
+  image?: string;
   subjectFont: string;
   studentFont: string;
   subjectGraphicStyle: string;

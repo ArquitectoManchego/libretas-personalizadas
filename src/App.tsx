@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { WhySolidBg } from './components/WhySolidBg';
-import { PricingSection } from './components/PricingSection';
-import { CatalogGallery } from './components/CatalogGallery';
-import { CoverPreviewModal } from './components/CoverPreviewModal';
+import { Catalog } from './pages/Catalog';
+import { ProductDetails } from './pages/ProductDetails';
 import { InteractiveCustomizer } from './components/InteractiveCustomizer';
 import { CartDrawer } from './components/CartDrawer';
 import { Footer } from './components/Footer';
-import { DesignItem, CartItem } from './types';
+import { CartItem } from './types';
 
 export const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedDesign, setSelectedDesign] = useState<DesignItem | null>(null);
 
   const handleAddToCart = (item: CartItem) => {
     setCart(prev => [...prev, item]);
+    setIsCartOpen(true); // Auto-open cart like Etsy usually shows a slide-out or popup
   };
 
   const handleRemoveFromCart = (cartId: string) => {
@@ -27,54 +25,28 @@ export const App: React.FC = () => {
     setCart([]);
   };
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-pink-500 selection:text-white">
+    <div className="min-h-screen flex flex-col font-sans selection:bg-[#F1651D] selection:text-white bg-white">
       
-      {/* Navbar Header */}
+      {/* Top Navigation */}
       <Header
         cart={cart}
         onOpenCart={() => setIsCartOpen(true)}
-        onScrollTo={scrollToSection}
       />
 
+      {/* Main Content Routing */}
       <main className="flex-1">
-        {/* Hero Banner */}
-        <Hero onScrollTo={scrollToSection} />
-
-        {/* Why Solid Color Background Rule */}
-        <WhySolidBg />
-
-        {/* Catalog Gallery (8 Infantiles + 5 Harry Potter) */}
-        <CatalogGallery
-          onSelectDesign={(design) => setSelectedDesign(design)}
-          onAddToCart={handleAddToCart}
-        />
-
-        {/* Interactive Customizer */}
-        <InteractiveCustomizer onAddToCart={handleAddToCart} />
-
-        {/* Pricing & Package Calculator */}
-        <PricingSection onScrollTo={scrollToSection} />
+        <Routes>
+          <Route path="/" element={<Catalog />} />
+          <Route path="/product/:id" element={<ProductDetails onAddToCart={handleAddToCart} />} />
+          <Route path="/custom" element={<InteractiveCustomizer onAddToCart={handleAddToCart} />} />
+        </Routes>
       </main>
 
-      {/* Footer */}
+      {/* Clean Footer */}
       <Footer />
 
-      {/* Continuous Cover Full Preview Modal */}
-      <CoverPreviewModal
-        design={selectedDesign}
-        onClose={() => setSelectedDesign(null)}
-        onAddToCart={handleAddToCart}
-      />
-
-      {/* Cart & WhatsApp Checkout Drawer */}
+      {/* Slide-out Cart Drawer */}
       <CartDrawer
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
