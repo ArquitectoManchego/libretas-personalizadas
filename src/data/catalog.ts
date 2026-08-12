@@ -270,3 +270,10 @@ export const GRAPHIC_STYLES = [
   { id: 'style-magic-silver', name: 'Plata Mística', class: 'style-magic-silver' },
   { id: 'style-magic-dark', name: 'Tinta Negra Trazo', class: 'style-magic-dark' }
 ];
+
+export const CHARACTER_OPTIONS = [
+  { id: 'hk', name: 'Hello Kitty Moño Rojo', svg: '/images/infantiles/libretas barbie-01.jpg' },
+  { id: 'mm', name: 'My Melody Capucha Rosa', svg: '/images/infantiles/libretas barbie-02.jpg' },
+  { id: 'hp', name: 'Escudo Hogwarts Dorado', svg: '/images/harry_potter/Libretas Alex-01.jpg' }
+];
+
