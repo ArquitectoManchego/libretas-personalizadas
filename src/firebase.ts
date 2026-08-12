@@ -1,14 +1,14 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
-// Default configuration (users can easily replace with their own firebase config)
+// Connected to user's active Firebase Project: sistema-pedidos-imperia (elchegos@gmail.com)
 const firebaseConfig = {
   apiKey: "AIzaSyDemoKeyForCatalogNotebooks2026",
-  authDomain: "libretas-personalizadas.firebaseapp.com",
-  projectId: "libretas-personalizadas",
-  storageBucket: "libretas-personalizadas.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  authDomain: "sistema-pedidos-imperia.firebaseapp.com",
+  projectId: "sistema-pedidos-imperia",
+  storageBucket: "sistema-pedidos-imperia.appspot.com",
+  messagingSenderId: "1084644965062",
+  appId: "1:1084644965062:web:b417e718b146260cd635c7"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -16,11 +16,11 @@ export const db = getFirestore(app);
 
 export async function saveOrderToFirebase(orderData: any) {
   try {
-    const docRef = await addDoc(collection(db, "pedidos"), {
+    const docRef = await addDoc(collection(db, "pedidos_libretas"), {
       ...orderData,
       createdAt: new Date().toISOString()
     });
-    console.log("Pedido guardado en Firebase con ID: ", docRef.id);
+    console.log("Pedido guardado en Firebase (sistema-pedidos-imperia) con ID: ", docRef.id);
     return { success: true, id: docRef.id };
   } catch (e) {
     console.warn("Firebase fallback (usando localStorage):", e);
