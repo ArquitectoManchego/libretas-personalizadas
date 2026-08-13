@@ -179,7 +179,7 @@ export const CATALOG_DESIGNS: DesignItem[] = [
     defaultSubject: 'Historia Universal',
     defaultStudentName: 'Alex Fernando G.',
     defaultGradeGroup: '5° B',
-    subjectFont: 'Cinzel',
+    subjectFont: 'Montserrat',
     studentFont: 'Montserrat',
     subjectGraphicStyle: 'style-magic-gold',
     description: 'Escudo oficial de Hogwarts sobre fondo azul noche. Título dorado con efecto biselado y tipografía medieval.',
@@ -197,7 +197,7 @@ export const CATALOG_DESIGNS: DesignItem[] = [
     defaultSubject: 'Matemáticas',
     defaultStudentName: 'Alex Fernando G.',
     defaultGradeGroup: '5° B',
-    subjectFont: 'Cinzel',
+    subjectFont: 'Montserrat',
     studentFont: 'Montserrat',
     subjectGraphicStyle: 'style-magic-gold',
     description: 'Color borgoña de la casa Gryffindor. Escudo del león centrado con fondo liso y lomo continuo.',
@@ -215,7 +215,7 @@ export const CATALOG_DESIGNS: DesignItem[] = [
     defaultSubject: 'Biología y Química',
     defaultStudentName: 'Alex Fernando G.',
     defaultGradeGroup: '5° B',
-    subjectFont: 'Cinzel',
+    subjectFont: 'Montserrat',
     studentFont: 'Montserrat',
     subjectGraphicStyle: 'style-magic-silver',
     description: 'Fondo verde esmeralda profundo con escudo plateado de serpiente. Elegante y sobrio.',
@@ -233,7 +233,7 @@ export const CATALOG_DESIGNS: DesignItem[] = [
     defaultSubject: 'Lengua y Literatura',
     defaultStudentName: 'Alex Fernando G.',
     defaultGradeGroup: '5° B',
-    subjectFont: 'Cinzel',
+    subjectFont: 'Montserrat',
     studentFont: 'Montserrat',
     subjectGraphicStyle: 'style-magic-gold',
     description: 'Azul zafiro Ravenclaw. Título de materia destacado en la parte superior y nombre del alumno en la inferior.',
@@ -251,7 +251,7 @@ export const CATALOG_DESIGNS: DesignItem[] = [
     defaultSubject: 'Geografía',
     defaultStudentName: 'Alex Fernando G.',
     defaultGradeGroup: '5° B',
-    subjectFont: 'Cinzel',
+    subjectFont: 'Montserrat',
     studentFont: 'Montserrat',
     subjectGraphicStyle: 'style-magic-dark',
     description: 'Fondo amarillo canario ámbar para cumplir regla de color de la libreta. Emblema en el centro con transparencia.',
@@ -259,39 +259,27 @@ export const CATALOG_DESIGNS: DesignItem[] = [
   }
 ];
 
-export const FONT_OPTIONS_SUBJECT = [
-  { name: 'Fredoka (Moderna / Infantil)', value: 'Fredoka' },
-  { name: 'Bubblegum Sans (Divertida)', value: 'Bubblegum Sans' },
-  { name: 'Bangers (Comic / Impacto)', value: 'Bangers' },
-  { name: 'Cinzel (Elegante / Harry Potter)', value: 'Cinzel' },
-  { name: 'Outfit (Limpia / Minimalista)', value: 'Outfit' },
-  { name: 'Comfortaa (Redonda / Suave)', value: 'Comfortaa' }
+// 12 Curated Pic Collage / iPhone Style Fonts
+export const GOOGLE_FONTS_12 = [
+  { name: '1. Montserrat (Recta & Moderna)', value: 'Montserrat' },
+  { name: '2. Outfit (Geométrica Limpia)', value: 'Outfit' },
+  { name: '3. Fredoka (Escolar Redonda)', value: 'Fredoka' },
+  { name: '4. Bubblegum Sans (Infantil Divertida)', value: 'Bubblegum Sans' },
+  { name: '5. Caveat (Manuscrita Escolar)', value: 'Caveat' },
+  { name: '6. Pacifico (Cursiva Retro Brush)', value: 'Pacifico' },
+  { name: '7. Dancing Script (Cursiva Fluida)', value: 'Dancing Script' },
+  { name: '8. Bangers (Comic & Impacto)', value: 'Bangers' },
+  { name: '9. Comfortaa (Minimalista Circular)', value: 'Comfortaa' },
+  { name: '10. Patrick Hand (Trazo a Lápiz)', value: 'Patrick Hand' },
+  { name: '11. Sacramento (Cursiva Elegante)', value: 'Sacramento' },
+  { name: '12. Chewy (Pop Inflada)', value: 'Chewy' }
 ];
 
-export const FONT_OPTIONS_STUDENT = [
-  { name: 'Pacifico (Cursiva Especial)', value: 'Pacifico' },
-  { name: 'Caveat (Manuscrita Escolar)', value: 'Caveat' },
-  { name: 'Montserrat (Formal / Limpia)', value: 'Montserrat' },
-  { name: 'Lobster (Caligráfica)', value: 'Lobster' },
-  { name: 'Comfortaa (Moderna)', value: 'Comfortaa' }
-];
+export const FONT_OPTIONS_SUBJECT = GOOGLE_FONTS_12;
+export const FONT_OPTIONS_STUDENT = GOOGLE_FONTS_12;
 
 export const GRAPHIC_STYLES = [
-  // Standard Styles
-  { id: 'style-pop-pink', name: '✨ Brillo Rosa 3D', class: 'style-pop-pink' },
-  { id: 'style-pop-purple', name: '✨ Sombra Lila Glow', class: 'style-pop-purple' },
-  { id: 'style-pop-green', name: '✨ Relieve Verde Menta', class: 'style-pop-green' },
-  { id: 'style-pop-yellow', name: '✨ Contorno Amarillo Pop', class: 'style-pop-yellow' },
-  { id: 'style-magic-gold', name: '✨ Oro Biselado Mágico', class: 'style-magic-gold' },
-  { id: 'style-magic-silver', name: '✨ Plata Mística', class: 'style-magic-silver' },
-  { id: 'style-magic-dark', name: '✨ Tinta Negra Trazo', class: 'style-magic-dark' },
-
-  // Illustrator Simulator Styles
-  { id: 'style-illustrator-3d-extrude', name: '🎨 Illustrator Extrusión 3D Red', class: 'style-illustrator-3d-extrude' },
-  { id: 'style-illustrator-comic-pop', name: '🎨 Illustrator Comic Pop Stroke', class: 'style-illustrator-comic-pop' },
-  { id: 'style-illustrator-gold-foil', name: '🎨 Illustrator Foil Dorado Metal', class: 'style-illustrator-gold-foil' },
-  { id: 'style-illustrator-neon-cyber', name: '🎨 Illustrator Neon Cyber Glow', class: 'style-illustrator-neon-cyber' },
-  { id: 'style-illustrator-diecut-sticker', name: '🎨 Illustrator Troquelado Sticker', class: 'style-illustrator-diecut-sticker' }
+  { id: 'style-clean', name: 'Texto Plano Limpio', class: 'text-slate-900 font-extrabold' }
 ];
 
 export const CHARACTER_OPTIONS = [

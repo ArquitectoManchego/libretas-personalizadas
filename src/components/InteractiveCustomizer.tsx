@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { CustomizationState, CartItem } from '../types';
-import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
+import { CHARACTER_OPTIONS, FONT_OPTIONS_SUBJECT, FONT_OPTIONS_STUDENT } from '../data/catalog';
 import { ILLUSTRATOR_STYLES, IllustratorStyleItem } from '../data/illustratorStyles';
 import { StyleCatalogModal } from './StyleCatalogModal';
-import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle, Move, LayoutGrid } from 'lucide-react';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle, Move, LayoutGrid, Type } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -31,9 +31,9 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     bgImage: '',
     characterImg: CHARACTER_OPTIONS[0].svg,
     characterName: CHARACTER_OPTIONS[0].name,
-    subjectFont: 'Bubblegum Sans',
+    subjectFont: 'Montserrat',
     studentFont: 'Pacifico',
-    subjectGraphicStyle: 'style-illustrator-3d-extrude',
+    subjectGraphicStyle: 'style-clean',
     spineText: 'MATEMÁTICAS',
     isPackage: true,
     
@@ -135,7 +135,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       characterName: state.characterName,
       subjectFont: state.subjectFont,
       studentFont: state.studentFont,
-      subjectGraphicStyle: state.subjectGraphicStyle,
+      subjectGraphicStyle: 'style-clean',
       spineText: state.omitSubject ? '' : (state.spineText || state.subject),
       quantity: quantity,
       isPackage: state.isPackage,
@@ -170,7 +170,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
-      {/* Modal Dialog for 12 Illustrator Styles */}
+      {/* Modal Dialog for 46 Illustrator Styles */}
       <StyleCatalogModal
         isOpen={isStyleModalOpen}
         onClose={() => setIsStyleModalOpen(false)}
@@ -257,7 +257,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                     {/* Right: Portada canvas with Rnd elements */}
                     <div className="cover-front flex-1 relative overflow-hidden p-2 flex flex-col justify-between">
                       
-                      {/* DRAGGABLE SUBJECT TITLE */}
+                      {/* DRAGGABLE SUBJECT TITLE (NORMAL CLEAN TEXT WITHOUT 3D EFFECTS) */}
                       {!state.omitSubject && (
                         <Rnd
                           bounds="parent"
@@ -277,8 +277,9 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
                         >
                           <span 
-                            className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                            className="text-slate-900 font-extrabold block truncate text-center w-full select-none"
                             style={{ 
+                              fontFamily: state.subjectFont,
                               fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
                             }}
                           >
@@ -374,8 +375,9 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
                         >
                           <span 
-                            className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                            className="text-slate-900 font-extrabold block truncate text-center w-full select-none"
                             style={{ 
+                              fontFamily: state.subjectFont,
                               fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
                             }}
                           >
@@ -439,7 +441,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               />
               <div className="text-left flex-1 min-w-0">
                 <div className="text-[10px] text-indigo-400 font-extrabold uppercase tracking-wider">
-                  Estilo de Texto Elegido #{selectedIllustratorStyle.codeNumber}
+                  Muestra de Estilo Elegida para Imprenta
                 </div>
                 <div className="text-xs font-bold text-white truncate">
                   {selectedIllustratorStyle.name}
@@ -613,50 +615,46 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </div>
               </div>
 
-              {/* Título de Materia + PROMINENT STYLE CATALOG BUTTON */}
+              {/* Título de Materia, 12 Google Fonts & Style Modal Button */}
               <div className="space-y-3 pt-1 border-t border-slate-100">
                 <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
-                  4. Estilo Gráfico de Texto para la Materia
+                  4. Texto de Materia & Tipografía (12 Estilos iPhone / Pic Collage)
                 </label>
 
-                {/* BIG BUTTON TO OPEN MODAL */}
-                <button
-                  type="button"
-                  onClick={() => setIsStyleModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold p-3.5 rounded-2xl shadow-lg flex items-center justify-between group transition-all"
-                >
-                  <div className="flex items-center gap-3 text-left">
-                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                      <LayoutGrid className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-extrabold uppercase text-indigo-200">
-                        Catálogo de Estilos (12 Disponibles)
-                      </div>
-                      <div className="text-sm font-black truncate max-w-[200px]">
-                        {selectedIllustratorStyle.name}
-                      </div>
-                    </div>
+                {/* Subject Text & Google Font Selector */}
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1">Nombre de la Materia</label>
+                    <input 
+                      type="text" 
+                      disabled={state.omitSubject}
+                      value={state.subject}
+                      onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
+                      className={`w-full border rounded-xl p-3 text-xs font-bold outline-none ${
+                        state.omitSubject ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'
+                      }`}
+                      placeholder="ej. MATEMÁTICAS"
+                    />
                   </div>
-                  <span className="bg-white/20 text-white text-xs font-black px-3 py-1.5 rounded-xl group-hover:scale-105 transition-transform">
-                    Ver Todos 🎨
-                  </span>
-                </button>
 
-                {/* Subject Text Input */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre de la Materia</label>
-                  <input 
-                    type="text" 
-                    disabled={state.omitSubject}
-                    value={state.subject}
-                    onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
-                    className={`w-full border rounded-xl p-3 text-xs font-bold outline-none ${
-                      state.omitSubject ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'
-                    }`}
-                    placeholder="ej. MATEMÁTICAS"
-                  />
-                  <label className="flex items-center gap-2 cursor-pointer pt-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-1 flex items-center gap-1">
+                      <Type className="w-3.5 h-3.5 text-indigo-600" />
+                      Tipografía para la Materia (12 Fuentes)
+                    </label>
+                    <select
+                      disabled={state.omitSubject}
+                      value={state.subjectFont}
+                      onChange={(e) => setState(prev => ({ ...prev, subjectFont: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none"
+                    >
+                      {FONT_OPTIONS_SUBJECT.map((font) => (
+                        <option key={font.value} value={font.value}>{font.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
                     <input 
                       type="checkbox" 
                       checked={state.omitSubject} 
@@ -665,6 +663,35 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                     />
                     <span className="text-[11px] text-slate-600">Omitir materia en el forro</span>
                   </label>
+                </div>
+
+                {/* STYLE CATALOG MODAL BUTTON */}
+                <div className="pt-2">
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    Muestra de Estilo Gráfico para Imprenta
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsStyleModalOpen(true)}
+                    className="w-full bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-indigo-900 hover:to-slate-900 text-white font-extrabold p-3 rounded-2xl shadow-md flex items-center justify-between group transition-all"
+                  >
+                    <div className="flex items-center gap-3 text-left">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
+                        <LayoutGrid className="w-4 h-4 text-indigo-300" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[10px] font-extrabold uppercase text-indigo-300">
+                          Catálogo de Estilos de Impresión (46 Muestras)
+                        </div>
+                        <div className="text-xs font-black truncate max-w-[200px]">
+                          {selectedIllustratorStyle.name}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="bg-white/10 text-white text-[11px] font-black px-2.5 py-1 rounded-xl group-hover:scale-105 transition-transform">
+                      Ver Todos 🎨
+                    </span>
+                  </button>
                 </div>
 
               </div>

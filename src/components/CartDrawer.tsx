@@ -64,8 +64,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         message += `*${index + 1}. FORRO: ${item.subject.toUpperCase()}*\n`;
         message += `   • Alumno: ${item.studentName}\n`;
         if (item.gradeGroup) message += `   • Grado/Grupo: ${item.gradeGroup}\n`;
+        if (item.subjectFont) {
+          message += `   • Tipografía Materia: ${item.subjectFont}\n`;
+        }
         if (item.illustratorStyleName) {
-          message += `   • 🎨 Estilo Gráfico Elegido: ${item.illustratorStyleName}\n`;
+          message += `   • 🎨 Muestra Estilo Imprenta: ${item.illustratorStyleName}\n`;
         }
         message += `   • Modalidad: ${modeLabel}\n`;
         if (item.notebookType) {
@@ -85,7 +88,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     message += `Por favor indíquenme los datos de pago y tiempo de entrega. ¡Gracias!`;
 
     const encodedMsg = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMsg}`;
+    const whatsappUrl = `https://wa.me/522297002273?text=${encodedMsg}`;
 
     setIsSubmitting(false);
     window.open(whatsappUrl, '_blank');
@@ -171,9 +174,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       
                       <p className="font-medium text-slate-500 truncate mt-0.5">Alumno: {item.studentName}</p>
                       {item.gradeGroup && <p className="text-[11px] text-slate-500">Grado/Grupo: {item.gradeGroup}</p>}
+                      {item.subjectFont && (
+                        <p className="text-[10px] text-slate-500">Tipografía: {item.subjectFont}</p>
+                      )}
                       {item.illustratorStyleName && (
                         <p className="text-[10px] font-bold text-indigo-600 mt-0.5 truncate">
-                          🎨 Estilo: {item.illustratorStyleName}
+                          🎨 Estilo Imprenta: {item.illustratorStyleName}
                         </p>
                       )}
                       
@@ -232,7 +238,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-2xl py-4 text-xs transition-all shadow-lg shadow-emerald-600/20 flex justify-center items-center gap-2 uppercase tracking-wide"
                 >
                   <Send className="w-4 h-4" />
-                  <span>Enviar Pedido por WhatsApp</span>
+                  <span>Enviar Pedido a WhatsApp (2297002273)</span>
                 </button>
 
                 <button
