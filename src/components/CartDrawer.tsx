@@ -64,6 +64,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         message += `*${index + 1}. FORRO: ${item.subject.toUpperCase()}*\n`;
         message += `   • Alumno: ${item.studentName}\n`;
         if (item.gradeGroup) message += `   • Grado/Grupo: ${item.gradeGroup}\n`;
+        if (item.illustratorStyleName) {
+          message += `   • 🎨 Estilo Gráfico Elegido: ${item.illustratorStyleName}\n`;
+        }
         message += `   • Modalidad: ${modeLabel}\n`;
         if (item.notebookType) {
           if (item.notebookType === 'espiral') {
@@ -146,7 +149,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     
                     {/* Thumbnail */}
                     <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 overflow-hidden flex-shrink-0 relative shadow-sm">
-                      {item.image ? (
+                      {item.illustratorStyleImg ? (
+                        <img src={item.illustratorStyleImg} alt={item.subject} className="w-full h-full object-cover"/>
+                      ) : item.image ? (
                         <img src={item.image} alt={item.subject} className="w-full h-full object-cover"/>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[9px] font-bold text-center" style={{ backgroundColor: item.bgColor }}>
@@ -166,6 +171,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       
                       <p className="font-medium text-slate-500 truncate mt-0.5">Alumno: {item.studentName}</p>
                       {item.gradeGroup && <p className="text-[11px] text-slate-500">Grado/Grupo: {item.gradeGroup}</p>}
+                      {item.illustratorStyleName && (
+                        <p className="text-[10px] font-bold text-indigo-600 mt-0.5 truncate">
+                          🎨 Estilo: {item.illustratorStyleName}
+                        </p>
+                      )}
                       
                       {item.isStickerProduct ? (
                         <span className="inline-block text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md mt-1">

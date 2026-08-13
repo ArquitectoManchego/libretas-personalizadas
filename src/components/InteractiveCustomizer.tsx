@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { CustomizationState, CartItem } from '../types';
 import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
-import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle, Move } from 'lucide-react';
+import { ILLUSTRATOR_STYLES, IllustratorStyleItem } from '../data/illustratorStyles';
+import { StyleCatalogModal } from './StyleCatalogModal';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle, Move, LayoutGrid } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -11,9 +13,14 @@ interface InteractiveCustomizerProps {
 
 export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ onAddToCart }) => {
   const navigate = useNavigate();
+  const [isStyleModalOpen, setIsStyleModalOpen] = useState(false);
+
   const [state, setState] = useState<CustomizationState>({
     subject: 'MATEMÁTICAS',
     subjectCustomImg: '',
+    illustratorStyleId: ILLUSTRATOR_STYLES[0].id,
+    illustratorStyleName: ILLUSTRATOR_STYLES[0].name,
+    illustratorStyleImg: ILLUSTRATOR_STYLES[0].image,
     studentName: 'Sofía Pérez',
     gradeGroup: '2° A',
     omitSubject: false,
@@ -41,8 +48,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     characterPos: { x: 45, y: 80, width: 110, height: 110 }
   });
 
-  const [customCharUrl, setCustomCharUrl] = useState('');
-  const [customSubjectUrl, setCustomSubjectUrl] = useState('');
+  const selectedIllustratorStyle = ILLUSTRATOR_STYLES.find(s => s.id === state.illustratorStyleId) || ILLUSTRATOR_STYLES[0];
 
   // Dimension Parser with 15x15 cm minimum clamping
   const parseDimension = (val: string, fallback: number): number => {
@@ -89,7 +95,6 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
         const result = uploadEvent.target?.result as string;
-        setCustomCharUrl(result);
         setState(prev => ({
           ...prev,
           characterImg: result,
@@ -100,21 +105,13 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     }
   };
 
-  // Upload Illustrator Pre-Rendered Subject Title PNG/SVG
-  const handleSubjectImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const result = uploadEvent.target?.result as string;
-        setCustomSubjectUrl(result);
-        setState(prev => ({
-          ...prev,
-          subjectCustomImg: result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleSelectStyle = (styleItem: IllustratorStyleItem) => {
+    setState(prev => ({
+      ...prev,
+      illustratorStyleId: styleItem.id,
+      illustratorStyleName: styleItem.name,
+      illustratorStyleImg: styleItem.image
+    }));
   };
 
   const handleAddCustomToCart = () => {
@@ -123,6 +120,9 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       isCustom: true,
       subject: state.omitSubject ? '(Sin Materia)' : state.subject,
       subjectCustomImg: state.subjectCustomImg,
+      illustratorStyleId: state.illustratorStyleId,
+      illustratorStyleName: state.illustratorStyleName,
+      illustratorStyleImg: state.illustratorStyleImg,
       studentName: state.omitStudentName ? '(Sin Nombre)' : state.studentName,
       gradeGroup: state.omitGradeGroup ? '(Sin Grado/Grupo)' : state.gradeGroup,
       omitSubject: state.omitSubject,
@@ -170,6 +170,14 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       
+      {/* Modal Dialog for 12 Illustrator Styles */}
+      <StyleCatalogModal
+        isOpen={isStyleModalOpen}
+        onClose={() => setIsStyleModalOpen(false)}
+        selectedStyleId={state.illustratorStyleId}
+        onSelectStyle={handleSelectStyle}
+      />
+
       {/* Back Header */}
       <div className="flex items-center justify-between mb-6">
         <button 
@@ -179,19 +187,19 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
           <ArrowLeft className="w-4 h-4" /> Volver al Catálogo
         </button>
         <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5" /> Editor Interactivo 2026 (Drag & Resize)
+          <Sparkles className="w-3.5 h-3.5" /> Editor Interactivo 2026
         </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Left: Interactive Dynamic Proportional & Draggable Cover Visualizer */}
+        {/* Left: Interactive Dynamic Proportional Cover Visualizer */}
         <div className="lg:col-span-7">
           <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[520px] sticky top-24">
             
             <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1 flex items-center gap-1.5">
               <Move className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Previsualizador Interactivo (Arrastra y Redimensiona)</span>
+              <span>Previsualizador de Portada</span>
             </div>
             
             <div className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-3">
@@ -249,7 +257,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                     {/* Right: Portada canvas with Rnd elements */}
                     <div className="cover-front flex-1 relative overflow-hidden p-2 flex flex-col justify-between">
                       
-                      {/* DRAGGABLE SUBJECT TITLE (TEXT OR ILLUSTRATOR PNG) */}
+                      {/* DRAGGABLE SUBJECT TITLE */}
                       {!state.omitSubject && (
                         <Rnd
                           bounds="parent"
@@ -268,22 +276,14 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           }}
                           className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
                         >
-                          {state.subjectCustomImg ? (
-                            <img 
-                              src={state.subjectCustomImg} 
-                              alt="Título Illustrator" 
-                              className="w-full h-full object-contain filter drop-shadow-md"
-                            />
-                          ) : (
-                            <span 
-                              className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
-                              style={{ 
-                                fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
-                              }}
-                            >
-                              {state.subject || 'MATERIA'}
-                            </span>
-                          )}
+                          <span 
+                            className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                            style={{ 
+                              fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
+                            }}
+                          >
+                            {state.subject || 'MATERIA'}
+                          </span>
                           <span className="absolute -top-3 -right-2 bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             Mover / Escalar
                           </span>
@@ -373,22 +373,14 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           }}
                           className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
                         >
-                          {state.subjectCustomImg ? (
-                            <img 
-                              src={state.subjectCustomImg} 
-                              alt="Título Illustrator" 
-                              className="w-full h-full object-contain filter drop-shadow-md"
-                            />
-                          ) : (
-                            <span 
-                              className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
-                              style={{ 
-                                fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
-                              }}
-                            >
-                              {state.subject || 'MATERIA'}
-                            </span>
-                          )}
+                          <span 
+                            className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                            style={{ 
+                              fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
+                            }}
+                          >
+                            {state.subject || 'MATERIA'}
+                          </span>
                         </Rnd>
                       )}
 
@@ -438,9 +430,28 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
             </div>
 
-            <p className="text-[11px] font-medium text-slate-400 mt-4 text-center">
-              💡 Arrastra las esquinas del título o imagen para cambiar su tamaño y posición en la libreta.
-            </p>
+            {/* Selected Style Badge Box */}
+            <div className="mt-4 flex items-center gap-3 bg-slate-900 text-white px-4 py-2.5 rounded-2xl shadow-lg border border-slate-800">
+              <img 
+                src={selectedIllustratorStyle.image} 
+                alt={selectedIllustratorStyle.name}
+                className="w-12 h-8 object-cover rounded-lg border border-white/20"
+              />
+              <div className="text-left flex-1 min-w-0">
+                <div className="text-[10px] text-indigo-400 font-extrabold uppercase tracking-wider">
+                  Estilo de Texto Elegido #{selectedIllustratorStyle.codeNumber}
+                </div>
+                <div className="text-xs font-bold text-white truncate">
+                  {selectedIllustratorStyle.name}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsStyleModalOpen(true)}
+                className="text-[11px] font-black text-indigo-300 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors"
+              >
+                Cambiar
+              </button>
+            </div>
 
           </div>
         </div>
@@ -452,7 +463,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-xs font-bold mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Estilos Illustrator + Drag & Resize</span>
+                <span>Diseño 100% Personalizable</span>
               </div>
               <h1 className="text-2xl font-black text-slate-900 leading-tight">
                 Personalizador de Forro
@@ -602,71 +613,60 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </div>
               </div>
 
-              {/* Título de Materia + Illustrator Upload Option */}
+              {/* Título de Materia + PROMINENT STYLE CATALOG BUTTON */}
               <div className="space-y-3 pt-1 border-t border-slate-100">
                 <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
-                  4. Título de la Materia & Graphic Styles
+                  4. Estilo Gráfico de Texto para la Materia
                 </label>
 
-                {/* Option A: Live Text with Illustrator Simulators */}
-                <div>
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <input 
-                      type="text" 
-                      disabled={state.omitSubject || !!state.subjectCustomImg}
-                      value={state.subject}
-                      onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
-                      className={`w-full border rounded-xl p-2 text-xs font-bold outline-none ${
-                        state.omitSubject || !!state.subjectCustomImg ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
-                      placeholder="Materia (ej. MATEMÁTICAS)"
-                    />
-                    <select
-                      disabled={!!state.subjectCustomImg}
-                      value={state.subjectGraphicStyle}
-                      onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-900 outline-none"
-                    >
-                      {GRAPHIC_STYLES.map((style) => (
-                        <option key={style.id} value={style.id}>{style.name}</option>
-                      ))}
-                    </select>
+                {/* BIG BUTTON TO OPEN MODAL */}
+                <button
+                  type="button"
+                  onClick={() => setIsStyleModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-700 text-white font-extrabold p-3.5 rounded-2xl shadow-lg flex items-center justify-between group transition-all"
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                      <LayoutGrid className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold uppercase text-indigo-200">
+                        Catálogo de Estilos (12 Disponibles)
+                      </div>
+                      <div className="text-sm font-black truncate max-w-[200px]">
+                        {selectedIllustratorStyle.name}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <span className="bg-white/20 text-white text-xs font-black px-3 py-1.5 rounded-xl group-hover:scale-105 transition-transform">
+                    Ver Todos 🎨
+                  </span>
+                </button>
 
-                {/* Option B: Upload PNG Title exported from Illustrator */}
-                <div className="p-3 bg-indigo-50/60 rounded-2xl border border-indigo-100 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-extrabold text-indigo-900">
-                      🎨 O bien: Sube Título Diseñado en Illustrator (PNG/SVG)
-                    </span>
-                    {state.subjectCustomImg && (
-                      <button 
-                        onClick={() => setState(prev => ({ ...prev, subjectCustomImg: '' }))}
-                        className="text-[10px] text-red-600 font-bold hover:underline"
-                      >
-                        Quitar
-                      </button>
-                    )}
-                  </div>
-                  <label className="flex items-center justify-center gap-2 p-2.5 bg-white border border-indigo-200 hover:border-indigo-400 cursor-pointer rounded-xl text-xs font-bold text-indigo-700 transition-colors shadow-sm">
-                    <Upload className="w-3.5 h-3.5 text-indigo-600" />
-                    <span className="truncate">
-                      {state.subjectCustomImg ? 'Imagen de Título Subida ✅' : 'Subir Archivo de Illustrator Renderizado'}
-                    </span>
-                    <input type="file" accept="image/*" onChange={handleSubjectImageUpload} className="hidden" />
+                {/* Subject Text Input */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre de la Materia</label>
+                  <input 
+                    type="text" 
+                    disabled={state.omitSubject}
+                    value={state.subject}
+                    onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
+                    className={`w-full border rounded-xl p-3 text-xs font-bold outline-none ${
+                      state.omitSubject ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'
+                    }`}
+                    placeholder="ej. MATEMÁTICAS"
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer pt-2">
+                    <input 
+                      type="checkbox" 
+                      checked={state.omitSubject} 
+                      onChange={(e) => setState(prev => ({ ...prev, omitSubject: e.target.checked }))} 
+                      className="w-3.5 h-3.5 rounded text-indigo-600"
+                    />
+                    <span className="text-[11px] text-slate-600">Omitir materia en el forro</span>
                   </label>
                 </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={state.omitSubject} 
-                    onChange={(e) => setState(prev => ({ ...prev, omitSubject: e.target.checked }))} 
-                    className="w-3.5 h-3.5 rounded text-indigo-600"
-                  />
-                  <span className="text-[11px] text-slate-600">Omitir materia en el forro</span>
-                </label>
               </div>
 
               {/* Character Upload */}

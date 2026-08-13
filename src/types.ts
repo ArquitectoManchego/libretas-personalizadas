@@ -26,7 +26,10 @@ export interface CartItem {
   isStickerProduct?: boolean;
   stickerOption?: '8_cut' | '32_sheet';
   subject: string;
-  subjectCustomImg?: string; // Pre-rendered Illustrator Title Image
+  subjectCustomImg?: string;
+  illustratorStyleId?: string;
+  illustratorStyleName?: string;
+  illustratorStyleImg?: string;
   studentName: string;
   gradeGroup?: string;
   omitSubject?: boolean;
@@ -58,7 +61,10 @@ export interface CartItem {
 
 export interface CustomizationState {
   subject: string;
-  subjectCustomImg: string; // Pre-rendered Illustrator Title Image
+  subjectCustomImg: string;
+  illustratorStyleId: string;
+  illustratorStyleName: string;
+  illustratorStyleImg: string;
   studentName: string;
   gradeGroup: string;
   omitSubject: boolean;
