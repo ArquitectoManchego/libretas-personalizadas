@@ -37,7 +37,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
   const [customCharUrl, setCustomCharUrl] = useState('');
 
-  // Dimension Parser for Dynamic Aspect Ratio Scaling
+  // Dimension Parser
   const parseDimension = (val: string, fallback: number): number => {
     if (!val) return fallback;
     const match = val.match(/([\d.]+)/);
@@ -50,10 +50,19 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const heightCm = parseDimension(state.notebookHeight, 26);
   const spineCm = parseDimension(state.notebookSpine, 1.2);
 
-  // Dynamic Aspect Ratios
-  const spiralAspectRatio = (widthCm * 2) / heightCm;
-  const nonSpiralAspectRatio = ((widthCm * 2) + spineCm) / heightCm;
-  const activeAspectRatio = state.notebookType === 'espiral' ? spiralAspectRatio : nonSpiralAspectRatio;
+  // Calculate dynamic pixels for real-time visual scaling
+  const totalWidthCm = state.notebookType === 'espiral' ? (widthCm * 2) : ((widthCm * 2) + spineCm);
+  const totalHeightCm = heightCm;
+
+  // Scale relative to standard notebook (39 cm total width x 26 cm height = 420px x 280px)
+  const widthRatio = totalWidthCm / 39;
+  const heightRatio = totalHeightCm / 26;
+
+  const calcWidthPx = Math.min(520, Math.max(220, Math.round(420 * widthRatio)));
+  const calcHeightPx = Math.min(420, Math.max(160, Math.round(280 * heightRatio)));
+  const calcSpinePercent = state.notebookType === 'sin_espiral' 
+    ? Math.max(8, Math.min(30, (spineCm / totalWidthCm) * 100)) 
+    : 0;
 
   const unitPrice = state.isPackage ? 120 : 150;
   const quantity = state.isPackage ? 6 : 1;
@@ -146,117 +155,133 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
           <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[500px] sticky top-24">
             
             <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-2">
-              Previsualización Proporcional ({widthCm} cm x {heightCm} cm)
+              Previsualizador Proporcional Dinámico
             </div>
-            <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full mb-6">
-              {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral Central' : `Forro Extendido (Lomo de ${spineCm} cm)`}
+            
+            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-8">
+              {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral' : `Forro Extendido (Lomo ${spineCm} cm)`}
             </div>
 
-            {/* DYNAMIC PROPORTIONAL VISUALIZER WRAPPER */}
-            <div 
-              className="notebook-continuous-wrapper w-full max-w-lg transition-all duration-500 shadow-2xl relative"
-              style={{
-                aspectRatio: activeAspectRatio,
-                maxHeight: '400px',
-                backgroundColor: state.bgColor
-              }}
-            >
-              {state.notebookType === 'espiral' ? (
-                /* OPEN SPIRAL NOTEBOOK VIEW */
-                <>
-                  {/* Left Side: Contraportada */}
-                  <div className="cover-back flex-1 flex flex-col justify-end items-center p-3 relative">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
-                      Contraportada
-                    </span>
-                  </div>
+            {/* RULER CONTAINER FOR REACTION FEEDBACK */}
+            <div className="relative flex items-center justify-center p-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+              
+              {/* Top Ruler Label (Width) */}
+              <div className="absolute -top-3 bg-slate-900 text-white font-mono text-[10px] font-bold px-3 py-0.5 rounded-full shadow-md z-20">
+                Ancho Total: {totalWidthCm.toFixed(1)} cm
+              </div>
 
-                  {/* Middle: 3D Metallic Spiral Spine */}
-                  <div className="spiral-wrapper">
-                    {[...Array(10)].map((_, i) => (
-                      <div key={i} className="spiral-ring" />
-                    ))}
-                  </div>
+              {/* Left Ruler Label (Height) */}
+              <div className="absolute -left-3 top-1/2 -translate-y-1/2 -rotate-90 bg-slate-900 text-white font-mono text-[10px] font-bold px-3 py-0.5 rounded-full shadow-md z-20 whitespace-nowrap">
+                Alto: {heightCm.toFixed(1)} cm
+              </div>
 
-                  {/* Right Side: Portada */}
-                  <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
-                    <div className="text-center w-full pt-1">
-                      <span className={`${state.subjectGraphicStyle} text-xl sm:text-2xl font-black block truncate px-1`}>
-                        {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+              {/* DYNAMIC SCALED NOTEBOOK BOX */}
+              <div 
+                className="notebook-continuous-wrapper transition-all duration-300 shadow-2xl relative"
+                style={{
+                  width: `${calcWidthPx}px`,
+                  height: `${calcHeightPx}px`,
+                  backgroundColor: state.bgColor
+                }}
+              >
+                {state.notebookType === 'espiral' ? (
+                  /* OPEN SPIRAL NOTEBOOK VIEW */
+                  <>
+                    {/* Left Side: Contraportada */}
+                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-3 relative">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                        Contraportada
                       </span>
                     </div>
-                    
-                    <div className="my-auto py-1">
-                      <img
-                        src={state.characterImg}
-                        alt={state.characterName}
-                        className="w-24 sm:w-28 h-24 sm:h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
-                      />
+
+                    {/* Middle: 3D Metallic Spiral Spine */}
+                    <div className="spiral-wrapper">
+                      {[...Array(8)].map((_, i) => (
+                        <div key={i} className="spiral-ring" />
+                      ))}
                     </div>
 
-                    <div className="text-center w-full pb-1">
-                      <span 
-                        className="text-slate-900 text-sm sm:text-base font-bold block truncate px-1"
-                        style={{ fontFamily: state.studentFont }}
-                      >
-                        {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
-                        {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
+                    {/* Right Side: Portada */}
+                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                      <div className="text-center w-full pt-1">
+                        <span className={`${state.subjectGraphicStyle} text-lg sm:text-xl font-black block truncate px-1`}>
+                          {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+                        </span>
+                      </div>
+                      
+                      <div className="my-auto py-1">
+                        <img
+                          src={state.characterImg}
+                          alt={state.characterName}
+                          className="w-20 sm:w-24 h-20 sm:h-24 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+
+                      <div className="text-center w-full pb-1">
+                        <span 
+                          className="text-slate-900 text-xs sm:text-sm font-bold block truncate px-1"
+                          style={{ fontFamily: state.studentFont }}
+                        >
+                          {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
+                          {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  /* CONTINUOUS WRAP COVER WITH FLAT SPINE */
+                  <>
+                    {/* Left Side: Contraportada */}
+                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-3">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                        Contraportada
                       </span>
                     </div>
-                  </div>
-                </>
-              ) : (
-                /* CONTINUOUS WRAP COVER WITH FLAT SPINE */
-                <>
-                  {/* Left Side: Contraportada */}
-                  <div className="cover-back flex-1 flex flex-col justify-end items-center p-3">
-                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
-                      Contraportada
-                    </span>
-                  </div>
 
-                  {/* Middle: Flat Spine */}
-                  <div 
-                    className="cover-spine" 
-                    style={{ width: `${Math.max(20, (spineCm / ((widthCm * 2) + spineCm)) * 100)}%` }}
-                  >
-                    <span className="spine-text">
-                      {state.omitSubject ? '' : (state.spineText || state.subject)}
-                    </span>
-                  </div>
-
-                  {/* Right Side: Portada */}
-                  <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
-                    <div className="text-center w-full pt-1">
-                      <span className={`${state.subjectGraphicStyle} text-xl sm:text-2xl font-black block truncate px-1`}>
-                        {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+                    {/* Middle: Dynamic Flat Spine */}
+                    <div 
+                      className="cover-spine transition-all duration-300" 
+                      style={{ width: `${calcSpinePercent}%` }}
+                    >
+                      <span className="spine-text">
+                        {state.omitSubject ? '' : (state.spineText || state.subject)}
                       </span>
                     </div>
-                    
-                    <div className="my-auto py-1">
-                      <img
-                        src={state.characterImg}
-                        alt={state.characterName}
-                        className="w-24 sm:w-28 h-24 sm:h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
-                      />
-                    </div>
 
-                    <div className="text-center w-full pb-1">
-                      <span 
-                        className="text-slate-900 text-sm sm:text-base font-bold block truncate px-1"
-                        style={{ fontFamily: state.studentFont }}
-                      >
-                        {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
-                        {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
-                      </span>
+                    {/* Right Side: Portada */}
+                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                      <div className="text-center w-full pt-1">
+                        <span className={`${state.subjectGraphicStyle} text-lg sm:text-xl font-black block truncate px-1`}>
+                          {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+                        </span>
+                      </div>
+                      
+                      <div className="my-auto py-1">
+                        <img
+                          src={state.characterImg}
+                          alt={state.characterName}
+                          className="w-20 sm:w-24 h-20 sm:h-24 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                        />
+                      </div>
+
+                      <div className="text-center w-full pb-1">
+                        <span 
+                          className="text-slate-900 text-xs sm:text-sm font-bold block truncate px-1"
+                          style={{ fontFamily: state.studentFont }}
+                        >
+                          {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
+                          {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
+
             </div>
 
             <p className="text-[11px] text-slate-400 mt-6 text-center">
-              * Papel Adhesivo MATE. Las proporciones de la vista en pantalla se adaptan automáticamente a tus medidas.
+              * Cambia las cifras de Ancho y Alto abajo para observar cómo se adapta el tamaño de la previsualización en vivo.
             </p>
 
           </div>
@@ -358,7 +383,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           type="text" 
                           value={state.notebookWidth}
                           onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
                           placeholder="ej. 19.5 cm"
                         />
                       </div>
@@ -368,7 +393,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           type="text" 
                           value={state.notebookHeight}
                           onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
                           placeholder="ej. 26 cm"
                         />
                       </div>
@@ -387,7 +412,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           type="text" 
                           value={state.notebookWidth}
                           onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
                           placeholder="20 cm"
                         />
                       </div>
@@ -397,7 +422,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           type="text" 
                           value={state.notebookHeight}
                           onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
                           placeholder="26 cm"
                         />
                       </div>
@@ -407,7 +432,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           type="text" 
                           value={state.notebookSpine}
                           onChange={(e) => setState(prev => ({ ...prev, notebookSpine: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
                           placeholder="1.2 cm"
                         />
                       </div>
