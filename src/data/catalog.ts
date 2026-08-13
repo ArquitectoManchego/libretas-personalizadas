@@ -277,13 +277,21 @@ export const FONT_OPTIONS_STUDENT = [
 ];
 
 export const GRAPHIC_STYLES = [
-  { id: 'style-pop-pink', name: 'Brillo Rosa 3D', class: 'style-pop-pink' },
-  { id: 'style-pop-purple', name: 'Sombra Lila Glow', class: 'style-pop-purple' },
-  { id: 'style-pop-green', name: 'Relieve Verde Menta', class: 'style-pop-green' },
-  { id: 'style-pop-yellow', name: 'Contorno Amarillo Pop', class: 'style-pop-yellow' },
-  { id: 'style-magic-gold', name: 'Oro Biselado Mágico', class: 'style-magic-gold' },
-  { id: 'style-magic-silver', name: 'Plata Mística', class: 'style-magic-silver' },
-  { id: 'style-magic-dark', name: 'Tinta Negra Trazo', class: 'style-magic-dark' }
+  // Standard Styles
+  { id: 'style-pop-pink', name: '✨ Brillo Rosa 3D', class: 'style-pop-pink' },
+  { id: 'style-pop-purple', name: '✨ Sombra Lila Glow', class: 'style-pop-purple' },
+  { id: 'style-pop-green', name: '✨ Relieve Verde Menta', class: 'style-pop-green' },
+  { id: 'style-pop-yellow', name: '✨ Contorno Amarillo Pop', class: 'style-pop-yellow' },
+  { id: 'style-magic-gold', name: '✨ Oro Biselado Mágico', class: 'style-magic-gold' },
+  { id: 'style-magic-silver', name: '✨ Plata Mística', class: 'style-magic-silver' },
+  { id: 'style-magic-dark', name: '✨ Tinta Negra Trazo', class: 'style-magic-dark' },
+
+  // Illustrator Simulator Styles
+  { id: 'style-illustrator-3d-extrude', name: '🎨 Illustrator Extrusión 3D Red', class: 'style-illustrator-3d-extrude' },
+  { id: 'style-illustrator-comic-pop', name: '🎨 Illustrator Comic Pop Stroke', class: 'style-illustrator-comic-pop' },
+  { id: 'style-illustrator-gold-foil', name: '🎨 Illustrator Foil Dorado Metal', class: 'style-illustrator-gold-foil' },
+  { id: 'style-illustrator-neon-cyber', name: '🎨 Illustrator Neon Cyber Glow', class: 'style-illustrator-neon-cyber' },
+  { id: 'style-illustrator-diecut-sticker', name: '🎨 Illustrator Troquelado Sticker', class: 'style-illustrator-diecut-sticker' }
 ];
 
 export const CHARACTER_OPTIONS = [

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Rnd } from 'react-rnd';
 import { CustomizationState, CartItem } from '../types';
 import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
-import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle } from 'lucide-react';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle, Move } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -12,6 +13,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const navigate = useNavigate();
   const [state, setState] = useState<CustomizationState>({
     subject: 'MATEMÁTICAS',
+    subjectCustomImg: '',
     studentName: 'Sofía Pérez',
     gradeGroup: '2° A',
     omitSubject: false,
@@ -24,7 +26,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     characterName: CHARACTER_OPTIONS[0].name,
     subjectFont: 'Bubblegum Sans',
     studentFont: 'Pacifico',
-    subjectGraphicStyle: 'style-pop-pink',
+    subjectGraphicStyle: 'style-illustrator-3d-extrude',
     spineText: 'MATEMÁTICAS',
     isPackage: true,
     
@@ -32,10 +34,15 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     notebookType: 'espiral',
     notebookWidth: '19.5 cm',
     notebookHeight: '26 cm',
-    notebookSpine: '1.2 cm'
+    notebookSpine: '1.2 cm',
+
+    // Position & Size for Draggable Elements
+    subjectPos: { x: 10, y: 15, width: 180, height: 50 },
+    characterPos: { x: 45, y: 80, width: 110, height: 110 }
   });
 
   const [customCharUrl, setCustomCharUrl] = useState('');
+  const [customSubjectUrl, setCustomSubjectUrl] = useState('');
 
   // Dimension Parser with 15x15 cm minimum clamping
   const parseDimension = (val: string, fallback: number): number => {
@@ -49,28 +56,24 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const rawWidth = parseDimension(state.notebookWidth, 19.5);
   const rawHeight = parseDimension(state.notebookHeight, 26);
   
-  // Enforce 15x15 cm minimum cover dimensions
   const widthCm = Math.max(15, rawWidth);
   const heightCm = Math.max(15, rawHeight);
   const spineCm = parseDimension(state.notebookSpine, 1.2);
 
   const isClamped = rawWidth < 15 || rawHeight < 15;
 
-  // Proportional Scaling Ratio (based on standard 26 cm height)
+  // Proportional Scaling Ratio
   const scaleRatio = heightCm / 26;
-  const subjectFontSize = Math.max(14, Math.min(26, Math.round(20 * scaleRatio)));
   const studentFontSize = Math.max(11, Math.min(16, Math.round(13 * scaleRatio)));
-  const characterImgPx = Math.max(64, Math.min(128, Math.round(96 * scaleRatio)));
 
-  // Calculate dynamic pixels for real-time visual scaling
   const totalWidthCm = state.notebookType === 'espiral' ? (widthCm * 2) : ((widthCm * 2) + spineCm);
   const totalHeightCm = heightCm;
 
   const widthRatio = totalWidthCm / 39;
   const heightRatio = totalHeightCm / 26;
 
-  const calcWidthPx = Math.min(520, Math.max(220, Math.round(420 * widthRatio)));
-  const calcHeightPx = Math.min(420, Math.max(160, Math.round(280 * heightRatio)));
+  const calcWidthPx = Math.min(540, Math.max(240, Math.round(440 * widthRatio)));
+  const calcHeightPx = Math.min(440, Math.max(180, Math.round(300 * heightRatio)));
   const calcSpinePercent = state.notebookType === 'sin_espiral' 
     ? Math.max(8, Math.min(30, (spineCm / totalWidthCm) * 100)) 
     : 0;
@@ -79,6 +82,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const quantity = state.isPackage ? 6 : 1;
   const totalPrice = unitPrice * quantity;
 
+  // Upload Character PNG
   const handleCustomImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -96,11 +100,29 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     }
   };
 
+  // Upload Illustrator Pre-Rendered Subject Title PNG/SVG
+  const handleSubjectImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const result = uploadEvent.target?.result as string;
+        setCustomSubjectUrl(result);
+        setState(prev => ({
+          ...prev,
+          subjectCustomImg: result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddCustomToCart = () => {
     const cartItem: CartItem = {
       cartId: 'CUST-' + Date.now(),
       isCustom: true,
       subject: state.omitSubject ? '(Sin Materia)' : state.subject,
+      subjectCustomImg: state.subjectCustomImg,
       studentName: state.omitStudentName ? '(Sin Nombre)' : state.studentName,
       gradeGroup: state.omitGradeGroup ? '(Sin Grado/Grupo)' : state.gradeGroup,
       omitSubject: state.omitSubject,
@@ -120,11 +142,13 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       unitPrice: unitPrice,
       totalPrice: totalPrice,
       
-      // Dimensions
+      // Dimensions & Draggable Positions
       notebookType: state.notebookType,
       notebookWidth: `${widthCm} cm`,
       notebookHeight: `${heightCm} cm`,
-      notebookSpine: state.notebookType === 'sin_espiral' ? `${spineCm} cm` : undefined
+      notebookSpine: state.notebookType === 'sin_espiral' ? `${spineCm} cm` : undefined,
+      subjectPos: state.subjectPos,
+      characterPos: state.characterPos
     };
 
     onAddToCart(cartItem);
@@ -154,41 +178,42 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
         >
           <ArrowLeft className="w-4 h-4" /> Volver al Catálogo
         </button>
-        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
-          Estudio de Personalización 2026
+        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5" /> Editor Interactivo 2026 (Drag & Resize)
         </span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Left: Interactive Dynamic Proportional Cover Visualizer */}
+        {/* Left: Interactive Dynamic Proportional & Draggable Cover Visualizer */}
         <div className="lg:col-span-7">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[500px] sticky top-24">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[520px] sticky top-24">
             
-            <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-2">
-              Previsualizador Proporcional Dinámico
+            <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-1 flex items-center gap-1.5">
+              <Move className="w-3.5 h-3.5 text-indigo-500" />
+              <span>Previsualizador Interactivo (Arrastra y Redimensiona)</span>
             </div>
             
-            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-3">
+            <div className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-3">
               {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral Metálica 3D' : `Forro Extendido (Lomo ${spineCm} cm)`}
             </div>
 
             {isClamped && (
-              <div className="mb-4 flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">
+              <div className="mb-3 flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                <span>Nota: El tamaño mínimo de portada es de 15 cm x 15 cm.</span>
+                <span>Mínimo reglamentario aplicado: 15 cm x 15 cm.</span>
               </div>
             )}
 
-            {/* RULER CONTAINER FOR REACTION FEEDBACK */}
+            {/* RULER CONTAINER */}
             <div className="relative flex items-center justify-center p-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
               
-              {/* Top Ruler Label (Width) */}
+              {/* Top Ruler */}
               <div className="absolute -top-3 bg-slate-900 text-white font-mono text-[10px] font-bold px-3 py-0.5 rounded-full shadow-md z-20">
                 Ancho Total: {totalWidthCm.toFixed(1)} cm
               </div>
 
-              {/* Left Ruler Label (Height) */}
+              {/* Left Ruler */}
               <div className="absolute -left-3 top-1/2 -translate-y-1/2 -rotate-90 bg-slate-900 text-white font-mono text-[10px] font-bold px-3 py-0.5 rounded-full shadow-md z-20 whitespace-nowrap">
                 Alto: {heightCm.toFixed(1)} cm
               </div>
@@ -203,16 +228,15 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 }}
               >
                 {state.notebookType === 'espiral' ? (
-                  /* OPEN SPIRAL NOTEBOOK VIEW WITH ULTRA-DENSE 3D WIRE LOOPS */
                   <>
-                    {/* Left Side: Contraportada */}
+                    {/* Left: Contraportada */}
                     <div className="cover-back flex-1 flex flex-col justify-end items-center p-2 relative">
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
                         Contraportada
                       </span>
                     </div>
 
-                    {/* Middle: 3D Metallic Dense Spiral Spine (26 loops) */}
+                    {/* Middle: 3D Metallic Dense Spiral Spine (24 loops) */}
                     <div className="spiral-spine-container">
                       {[...Array(24)].map((_, i) => (
                         <div key={i} className="spiral-wire-loop relative w-full flex items-center justify-between">
@@ -222,29 +246,82 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                       ))}
                     </div>
 
-                    {/* Right Side: Portada with Proportional Text/Image Scaling */}
-                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-2">
-                      <div className="text-center w-full pt-1">
-                        <span 
-                          className={`${state.subjectGraphicStyle} font-black block truncate px-1`}
-                          style={{ fontSize: `${subjectFontSize}px` }}
-                        >
-                          {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
-                        </span>
-                      </div>
+                    {/* Right: Portada canvas with Rnd elements */}
+                    <div className="cover-front flex-1 relative overflow-hidden p-2 flex flex-col justify-between">
                       
-                      <div className="my-auto py-1 flex items-center justify-center">
+                      {/* DRAGGABLE SUBJECT TITLE (TEXT OR ILLUSTRATOR PNG) */}
+                      {!state.omitSubject && (
+                        <Rnd
+                          bounds="parent"
+                          size={{ width: state.subjectPos.width, height: state.subjectPos.height }}
+                          position={{ x: state.subjectPos.x, y: state.subjectPos.y }}
+                          onDragStop={(e, d) => setState(prev => ({ ...prev, subjectPos: { ...prev.subjectPos, x: d.x, y: d.y } }))}
+                          onResizeStop={(e, direction, ref, delta, position) => {
+                            setState(prev => ({
+                              ...prev,
+                              subjectPos: {
+                                width: ref.offsetWidth,
+                                height: ref.offsetHeight,
+                                ...position
+                              }
+                            }));
+                          }}
+                          className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
+                        >
+                          {state.subjectCustomImg ? (
+                            <img 
+                              src={state.subjectCustomImg} 
+                              alt="Título Illustrator" 
+                              className="w-full h-full object-contain filter drop-shadow-md"
+                            />
+                          ) : (
+                            <span 
+                              className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                              style={{ 
+                                fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
+                              }}
+                            >
+                              {state.subject || 'MATERIA'}
+                            </span>
+                          )}
+                          <span className="absolute -top-3 -right-2 bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                            Mover / Escalar
+                          </span>
+                        </Rnd>
+                      )}
+
+                      {/* DRAGGABLE CHARACTER IMAGE */}
+                      <Rnd
+                        bounds="parent"
+                        size={{ width: state.characterPos.width, height: state.characterPos.height }}
+                        position={{ x: state.characterPos.x, y: state.characterPos.y }}
+                        onDragStop={(e, d) => setState(prev => ({ ...prev, characterPos: { ...prev.characterPos, x: d.x, y: d.y } }))}
+                        onResizeStop={(e, direction, ref, delta, position) => {
+                          setState(prev => ({
+                            ...prev,
+                            characterPos: {
+                              width: ref.offsetWidth,
+                              height: ref.offsetHeight,
+                              ...position
+                            }
+                          }));
+                        }}
+                        className="border border-purple-400/40 hover:border-purple-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-10"
+                      >
                         <img
                           src={state.characterImg}
                           alt={state.characterName}
-                          className="object-contain filter drop-shadow-xl transition-all duration-300 hover:scale-105"
-                          style={{ width: `${characterImgPx}px`, height: `${characterImgPx}px` }}
+                          className="w-full h-full object-contain filter drop-shadow-xl select-none pointer-events-none"
                         />
-                      </div>
+                        <span className="absolute -top-3 -right-2 bg-purple-600 text-white text-[8px] font-bold px-1.5 py-0.2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                          Imagen
+                        </span>
+                      </Rnd>
 
-                      <div className="text-center w-full pb-1">
+                      {/* Bottom Fixed Student Name */}
+                      <div className="absolute bottom-2 left-0 right-0 text-center px-2 z-0">
                         <span 
-                          className="text-slate-900 font-bold block truncate px-1"
+                          className="text-slate-900 font-bold block truncate"
                           style={{ 
                             fontFamily: state.studentFont,
                             fontSize: `${studentFontSize}px`
@@ -254,19 +331,18 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
                         </span>
                       </div>
+
                     </div>
                   </>
                 ) : (
-                  /* CONTINUOUS WRAP COVER WITH FLAT SPINE */
+                  /* CONTINUOUS COVER WITH FLAT SPINE */
                   <>
-                    {/* Left Side: Contraportada */}
                     <div className="cover-back flex-1 flex flex-col justify-end items-center p-2">
                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
                         Contraportada
                       </span>
                     </div>
 
-                    {/* Middle: Dynamic Flat Spine */}
                     <div 
                       className="cover-spine transition-all duration-300" 
                       style={{ width: `${calcSpinePercent}%` }}
@@ -276,29 +352,75 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                       </span>
                     </div>
 
-                    {/* Right Side: Portada with Proportional Text/Image Scaling */}
-                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-2">
-                      <div className="text-center w-full pt-1">
-                        <span 
-                          className={`${state.subjectGraphicStyle} font-black block truncate px-1`}
-                          style={{ fontSize: `${subjectFontSize}px` }}
-                        >
-                          {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
-                        </span>
-                      </div>
+                    <div className="cover-front flex-1 relative overflow-hidden p-2">
                       
-                      <div className="my-auto py-1 flex items-center justify-center">
+                      {/* DRAGGABLE SUBJECT TITLE */}
+                      {!state.omitSubject && (
+                        <Rnd
+                          bounds="parent"
+                          size={{ width: state.subjectPos.width, height: state.subjectPos.height }}
+                          position={{ x: state.subjectPos.x, y: state.subjectPos.y }}
+                          onDragStop={(e, d) => setState(prev => ({ ...prev, subjectPos: { ...prev.subjectPos, x: d.x, y: d.y } }))}
+                          onResizeStop={(e, direction, ref, delta, position) => {
+                            setState(prev => ({
+                              ...prev,
+                              subjectPos: {
+                                width: ref.offsetWidth,
+                                height: ref.offsetHeight,
+                                ...position
+                              }
+                            }));
+                          }}
+                          className="border border-indigo-400/40 hover:border-indigo-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-20"
+                        >
+                          {state.subjectCustomImg ? (
+                            <img 
+                              src={state.subjectCustomImg} 
+                              alt="Título Illustrator" 
+                              className="w-full h-full object-contain filter drop-shadow-md"
+                            />
+                          ) : (
+                            <span 
+                              className={`${state.subjectGraphicStyle} font-black block truncate text-center w-full select-none`}
+                              style={{ 
+                                fontSize: `${Math.max(12, Math.min(32, Math.round(state.subjectPos.height * 0.55)))}px` 
+                              }}
+                            >
+                              {state.subject || 'MATERIA'}
+                            </span>
+                          )}
+                        </Rnd>
+                      )}
+
+                      {/* DRAGGABLE CHARACTER IMAGE */}
+                      <Rnd
+                        bounds="parent"
+                        size={{ width: state.characterPos.width, height: state.characterPos.height }}
+                        position={{ x: state.characterPos.x, y: state.characterPos.y }}
+                        onDragStop={(e, d) => setState(prev => ({ ...prev, characterPos: { ...prev.characterPos, x: d.x, y: d.y } }))}
+                        onResizeStop={(e, direction, ref, delta, position) => {
+                          setState(prev => ({
+                            ...prev,
+                            characterPos: {
+                              width: ref.offsetWidth,
+                              height: ref.offsetHeight,
+                              ...position
+                            }
+                          }));
+                        }}
+                        className="border border-purple-400/40 hover:border-purple-600 border-dashed rounded-lg flex items-center justify-center cursor-move transition-colors group z-10"
+                      >
                         <img
                           src={state.characterImg}
                           alt={state.characterName}
-                          className="object-contain filter drop-shadow-xl transition-all duration-300 hover:scale-105"
-                          style={{ width: `${characterImgPx}px`, height: `${characterImgPx}px` }}
+                          className="w-full h-full object-contain filter drop-shadow-xl select-none pointer-events-none"
                         />
-                      </div>
+                      </Rnd>
 
-                      <div className="text-center w-full pb-1">
+                      {/* Bottom Fixed Student Name */}
+                      <div className="absolute bottom-2 left-0 right-0 text-center px-2 z-0">
                         <span 
-                          className="text-slate-900 font-bold block truncate px-1"
+                          className="text-slate-900 font-bold block truncate"
                           style={{ 
                             fontFamily: state.studentFont,
                             fontSize: `${studentFontSize}px`
@@ -308,6 +430,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
                         </span>
                       </div>
+
                     </div>
                   </>
                 )}
@@ -315,8 +438,8 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
             </div>
 
-            <p className="text-[11px] text-slate-400 mt-6 text-center">
-              * Textos e imágenes se escalan proporcionalmente a las medidas de la portada.
+            <p className="text-[11px] font-medium text-slate-400 mt-4 text-center">
+              💡 Arrastra las esquinas del título o imagen para cambiar su tamaño y posición en la libreta.
             </p>
 
           </div>
@@ -329,10 +452,10 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 text-xs font-bold mb-2">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Diseño 100% a Medida</span>
+                <span>Estilos Illustrator + Drag & Resize</span>
               </div>
               <h1 className="text-2xl font-black text-slate-900 leading-tight">
-                Personalizador de Forro Adhesivo
+                Personalizador de Forro
               </h1>
               <div className="text-2xl font-black text-slate-900 mt-2">
                 ${totalPrice.toFixed(2)} <span className="text-sm font-normal text-slate-500">MXN</span>
@@ -368,17 +491,17 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </div>
               </div>
 
-              {/* Notebook Dimensions Section */}
+              {/* Dimensions Section */}
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
                 <div className="flex items-center gap-2">
                   <Ruler className="w-4 h-4 text-indigo-600" />
                   <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
-                    2. Medidas Exactas de la Libreta (Mín. 15x15 cm)
+                    2. Medidas Exactas (Mín. 15x15 cm)
                   </label>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tipo de Encuadernación</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Encuadernación</label>
                   <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
                     <button
                       type="button"
@@ -400,77 +523,60 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                           : 'border-slate-200 text-slate-600 hover:bg-white'
                       }`}
                     >
-                      📘 Sin Espiral (Cosida / Dura)
+                      📘 Sin Espiral (Dura / Cosida)
                     </button>
                   </div>
                 </div>
 
                 {state.notebookType === 'espiral' ? (
-                  <div className="space-y-2 pt-1">
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                      <HelpCircle className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
-                      Mide desde el borde exterior de la pasta hasta el inicio de la espiral.
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700">Ancho (borde a espiral)</label>
-                        <input 
-                          type="text" 
-                          value={state.notebookWidth}
-                          onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
-                          placeholder="ej. 19.5 cm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700">Alto de la libreta</label>
-                        <input 
-                          type="text" 
-                          value={state.notebookHeight}
-                          onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
-                          placeholder="ej. 26 cm"
-                        />
-                      </div>
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700">Ancho (cm)</label>
+                      <input 
+                        type="text" 
+                        value={state.notebookWidth}
+                        onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700">Alto (cm)</label>
+                      <input 
+                        type="text" 
+                        value={state.notebookHeight}
+                        onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                      />
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2 pt-1">
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                      <HelpCircle className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
-                      Ingresa el ancho, alto y el grosor (espesor) del lomo de la libreta.
-                    </p>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-700">Ancho</label>
-                        <input 
-                          type="text" 
-                          value={state.notebookWidth}
-                          onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
-                          placeholder="20 cm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-700">Alto</label>
-                        <input 
-                          type="text" 
-                          value={state.notebookHeight}
-                          onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
-                          placeholder="26 cm"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-700">Lomo (grosor)</label>
-                        <input 
-                          type="text" 
-                          value={state.notebookSpine}
-                          onChange={(e) => setState(prev => ({ ...prev, notebookSpine: e.target.value }))}
-                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none focus:border-indigo-500"
-                          placeholder="1.2 cm"
-                        />
-                      </div>
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-700">Ancho</label>
+                      <input 
+                        type="text" 
+                        value={state.notebookWidth}
+                        onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-700">Alto</label>
+                      <input 
+                        type="text" 
+                        value={state.notebookHeight}
+                        onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-700">Lomo</label>
+                      <input 
+                        type="text" 
+                        value={state.notebookSpine}
+                        onChange={(e) => setState(prev => ({ ...prev, notebookSpine: e.target.value }))}
+                        className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                      />
                     </div>
                   </div>
                 )}
@@ -486,7 +592,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                     <button
                       key={color.hex}
                       onClick={() => setState(prev => ({ ...prev, bgColor: color.hex }))}
-                      className={`h-9 rounded-xl border border-slate-300 transition-transform ${
+                      className={`h-8 rounded-xl border border-slate-300 transition-transform ${
                         state.bgColor === color.hex ? 'ring-2 ring-indigo-600 ring-offset-2 scale-105' : 'hover:scale-105'
                       }`}
                       style={{ backgroundColor: color.hex }}
@@ -496,62 +602,89 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </div>
               </div>
 
-              {/* Character Upload */}
-              <div>
-                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Image className="w-4 h-4 text-indigo-500" /> 4. Imagen o Logo Central (PNG)
+              {/* Título de Materia + Illustrator Upload Option */}
+              <div className="space-y-3 pt-1 border-t border-slate-100">
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                  4. Título de la Materia & Graphic Styles
                 </label>
-                <label className="flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/50 cursor-pointer rounded-2xl text-xs font-bold text-slate-700 transition-colors">
-                  <Upload className="w-4 h-4 text-indigo-500" />
-                  <span>{state.characterName || 'Subir Imagen PNG Transparente'}</span>
-                  <input type="file" accept="image/*" onChange={handleCustomImageUpload} className="hidden" />
-                </label>
-              </div>
 
-              {/* Text Controls & Opt-outs */}
-              <div className="space-y-3">
-                
-                {/* Materia */}
+                {/* Option A: Live Text with Illustrator Simulators */}
                 <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-slate-700">Materia</label>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 mb-2">
                     <input 
                       type="text" 
-                      disabled={state.omitSubject}
+                      disabled={state.omitSubject || !!state.subjectCustomImg}
                       value={state.subject}
                       onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
-                      className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
-                        state.omitSubject ? 'bg-slate-100 text-slate-400 line-through' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      className={`w-full border rounded-xl p-2 text-xs font-bold outline-none ${
+                        state.omitSubject || !!state.subjectCustomImg ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 border-slate-200 text-slate-900'
                       }`}
+                      placeholder="Materia (ej. MATEMÁTICAS)"
                     />
                     <select
+                      disabled={!!state.subjectCustomImg}
                       value={state.subjectGraphicStyle}
                       onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs font-bold text-slate-900 outline-none"
                     >
                       {GRAPHIC_STYLES.map((style) => (
                         <option key={style.id} value={style.id}>{style.name}</option>
                       ))}
                     </select>
                   </div>
-                  <label className="flex items-center gap-2 cursor-pointer pt-1">
-                    <input 
-                      type="checkbox" 
-                      checked={state.omitSubject} 
-                      onChange={(e) => setState(prev => ({ ...prev, omitSubject: e.target.checked }))} 
-                      className="w-3.5 h-3.5 rounded text-indigo-600"
-                    />
-                    <span className="text-[11px] text-slate-600">Omitir materia</span>
+                </div>
+
+                {/* Option B: Upload PNG Title exported from Illustrator */}
+                <div className="p-3 bg-indigo-50/60 rounded-2xl border border-indigo-100 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-extrabold text-indigo-900">
+                      🎨 O bien: Sube Título Diseñado en Illustrator (PNG/SVG)
+                    </span>
+                    {state.subjectCustomImg && (
+                      <button 
+                        onClick={() => setState(prev => ({ ...prev, subjectCustomImg: '' }))}
+                        className="text-[10px] text-red-600 font-bold hover:underline"
+                      >
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+                  <label className="flex items-center justify-center gap-2 p-2.5 bg-white border border-indigo-200 hover:border-indigo-400 cursor-pointer rounded-xl text-xs font-bold text-indigo-700 transition-colors shadow-sm">
+                    <Upload className="w-3.5 h-3.5 text-indigo-600" />
+                    <span className="truncate">
+                      {state.subjectCustomImg ? 'Imagen de Título Subida ✅' : 'Subir Archivo de Illustrator Renderizado'}
+                    </span>
+                    <input type="file" accept="image/*" onChange={handleSubjectImageUpload} className="hidden" />
                   </label>
                 </div>
 
-                {/* Student Name */}
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={state.omitSubject} 
+                    onChange={(e) => setState(prev => ({ ...prev, omitSubject: e.target.checked }))} 
+                    className="w-3.5 h-3.5 rounded text-indigo-600"
+                  />
+                  <span className="text-[11px] text-slate-600">Omitir materia en el forro</span>
+                </label>
+              </div>
+
+              {/* Character Upload */}
+              <div className="pt-1 border-t border-slate-100">
+                <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Image className="w-4 h-4 text-indigo-500" /> 5. Imagen o Logo Central (PNG)
+                </label>
+                <label className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/50 cursor-pointer rounded-2xl text-xs font-bold text-slate-700 transition-colors">
+                  <Upload className="w-4 h-4 text-indigo-500" />
+                  <span>{state.characterName || 'Subir Imagen PNG Transparente'}</span>
+                  <input type="file" accept="image/*" onChange={handleCustomImageUpload} className="hidden" />
+                </label>
+              </div>
+
+              {/* Student Name */}
+              <div className="space-y-3 pt-1 border-t border-slate-100">
                 <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-slate-700">Nombre Alumno</label>
-                  </div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Nombre Alumno y Tipografía</label>
                   <div className="grid grid-cols-2 gap-2">
                     <input 
                       type="text" 
@@ -583,7 +716,6 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                   </label>
                 </div>
 
-                {/* Grade and Group */}
                 <div>
                   <label className="text-xs font-bold text-slate-700 block mb-1">Grado y Grupo</label>
                   <input 
@@ -606,7 +738,6 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                     <span className="text-[11px] text-slate-600">Omitir grado y grupo</span>
                   </label>
                 </div>
-
               </div>
 
               {/* CTA */}

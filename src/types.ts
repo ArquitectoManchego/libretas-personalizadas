@@ -26,6 +26,7 @@ export interface CartItem {
   isStickerProduct?: boolean;
   stickerOption?: '8_cut' | '32_sheet';
   subject: string;
+  subjectCustomImg?: string; // Pre-rendered Illustrator Title Image
   studentName: string;
   gradeGroup?: string;
   omitSubject?: boolean;
@@ -46,15 +47,18 @@ export interface CartItem {
   unitPrice: number;
   totalPrice: number;
   
-  // Dimensions
+  // Dimensions & Custom Drag Positions
   notebookType?: 'espiral' | 'sin_espiral';
   notebookWidth?: string;
   notebookHeight?: string;
   notebookSpine?: string;
+  subjectPos?: { x: number; y: number; width: number; height: number };
+  characterPos?: { x: number; y: number; width: number; height: number };
 }
 
 export interface CustomizationState {
   subject: string;
+  subjectCustomImg: string; // Pre-rendered Illustrator Title Image
   studentName: string;
   gradeGroup: string;
   omitSubject: boolean;
@@ -76,4 +80,8 @@ export interface CustomizationState {
   notebookWidth: string;
   notebookHeight: string;
   notebookSpine: string;
+
+  // Drag & Resize Coordinates (px in preview container)
+  subjectPos: { x: number; y: number; width: number; height: number };
+  characterPos: { x: number; y: number; width: number; height: number };
 }

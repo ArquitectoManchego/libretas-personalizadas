@@ -24,7 +24,7 @@
   border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-/* Graphic Styles for Text Highlights */
+/* Graphic Styles for Text Highlights (Standard + Advanced Illustrator Simulators) */
 .style-pop-pink {
   color: #FF2D55;
   text-shadow: 2px 2px 0px #FFF, 4px 4px 0px rgba(255, 45, 85, 0.3);
@@ -70,6 +70,56 @@
   text-shadow: 1px 1px 0px #FFF, 3px 3px 0px #94A3B8;
 }
 
+/* --- ADVANCED ILLUSTRATOR GRAPHIC STYLES SIMULATORS --- */
+.style-illustrator-3d-extrude {
+  color: #FF2D55;
+  text-shadow: 
+    1px 1px 0 #D91D42,
+    2px 2px 0 #D91D42,
+    3px 3px 0 #B21535,
+    4px 4px 0 #B21535,
+    5px 5px 0 #8C0E27,
+    6px 6px 0 #8C0E27,
+    7px 7px 10px rgba(0, 0, 0, 0.5);
+  font-weight: 900;
+}
+
+.style-illustrator-comic-pop {
+  color: #FFE600;
+  -webkit-text-stroke: 2px #000000;
+  text-shadow: 
+    3px 3px 0 #000000,
+    6px 6px 0 #FF2D55;
+  font-weight: 900;
+}
+
+.style-illustrator-gold-foil {
+  background: linear-gradient(180deg, #FFE259 0%, #FFA751 50%, #B8860B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.6));
+  font-weight: 900;
+}
+
+.style-illustrator-neon-cyber {
+  color: #00F0FF;
+  text-shadow: 
+    0 0 5px #00F0FF,
+    0 0 10px #00F0FF,
+    0 0 20px #00F0FF,
+    0 0 40px #FF007F;
+  font-weight: 900;
+}
+
+.style-illustrator-diecut-sticker {
+  color: #1E293B;
+  background: #FFFFFF;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 3px #FFFFFF;
+  font-weight: 800;
+}
+
 /* 3D Continuous Cover Folded Perspective Simulation */
 .notebook-continuous-wrapper {
   display: flex;
@@ -77,6 +127,7 @@
   overflow: hidden;
   box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease-in-out;
+  position: relative;
 }
 
 .cover-back {
@@ -117,6 +168,8 @@
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(-90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 15%);
+  position: relative;
+  overflow: hidden;
 }
 
 /* Realistic Ultra-Dense 3D Spiral Wire Spine */
