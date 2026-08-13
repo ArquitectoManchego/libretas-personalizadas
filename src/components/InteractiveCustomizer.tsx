@@ -36,7 +36,25 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   });
 
   const [customCharUrl, setCustomCharUrl] = useState('');
-  
+
+  // Dimension Parser for Dynamic Aspect Ratio Scaling
+  const parseDimension = (val: string, fallback: number): number => {
+    if (!val) return fallback;
+    const match = val.match(/([\d.]+)/);
+    if (!match) return fallback;
+    const parsed = parseFloat(match[1]);
+    return isNaN(parsed) || parsed <= 0 ? fallback : parsed;
+  };
+
+  const widthCm = parseDimension(state.notebookWidth, 19.5);
+  const heightCm = parseDimension(state.notebookHeight, 26);
+  const spineCm = parseDimension(state.notebookSpine, 1.2);
+
+  // Dynamic Aspect Ratios
+  const spiralAspectRatio = (widthCm * 2) / heightCm;
+  const nonSpiralAspectRatio = ((widthCm * 2) + spineCm) / heightCm;
+  const activeAspectRatio = state.notebookType === 'espiral' ? spiralAspectRatio : nonSpiralAspectRatio;
+
   const unitPrice = state.isPackage ? 120 : 150;
   const quantity = state.isPackage ? 6 : 1;
   const totalPrice = unitPrice * quantity;
@@ -123,59 +141,122 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* Left: Interactive 3D Cover Visualizer */}
+        {/* Left: Interactive Dynamic Proportional Cover Visualizer */}
         <div className="lg:col-span-7">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[480px] sticky top-24">
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xl flex flex-col items-center justify-center min-h-[500px] sticky top-24">
             
-            <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-4">
-              Vista 360° en Tiempo Real (Frente, Lomo y Vuelta)
+            <div className="text-xs font-extrabold uppercase text-slate-400 tracking-wider mb-2">
+              Previsualización Proporcional ({widthCm} cm x {heightCm} cm)
+            </div>
+            <div className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full mb-6">
+              {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral Central' : `Forro Extendido (Lomo de ${spineCm} cm)`}
             </div>
 
-            {/* Notebook Continuous 3D Wrapper */}
+            {/* DYNAMIC PROPORTIONAL VISUALIZER WRAPPER */}
             <div 
-              className="notebook-continuous-wrapper w-full max-w-lg transition-all duration-300 shadow-2xl"
+              className="notebook-continuous-wrapper w-full max-w-lg transition-all duration-500 shadow-2xl relative"
               style={{
+                aspectRatio: activeAspectRatio,
+                maxHeight: '400px',
                 backgroundColor: state.bgColor
               }}
             >
-              {/* Back Cover */}
-              <div className="cover-back">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contraportada</span>
-              </div>
-              {/* Spine */}
-              <div className="cover-spine">
-                <span className="spine-text">{state.omitSubject ? '' : (state.spineText || state.subject)}</span>
-              </div>
-              {/* Front Cover */}
-              <div className="cover-front">
-                <div className="text-center w-full pt-2">
-                  <span className={`${state.subjectGraphicStyle} text-2xl font-black block truncate px-1`}>
-                    {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
-                  </span>
-                </div>
-                
-                <div className="my-auto py-2">
-                  <img
-                    src={state.characterImg}
-                    alt={state.characterName}
-                    className="w-28 h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
+              {state.notebookType === 'espiral' ? (
+                /* OPEN SPIRAL NOTEBOOK VIEW */
+                <>
+                  {/* Left Side: Contraportada */}
+                  <div className="cover-back flex-1 flex flex-col justify-end items-center p-3 relative">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                      Contraportada
+                    </span>
+                  </div>
 
-                <div className="text-center w-full pb-2">
-                  <span 
-                    className="text-slate-900 text-base font-bold block truncate px-1"
-                    style={{ fontFamily: state.studentFont }}
+                  {/* Middle: 3D Metallic Spiral Spine */}
+                  <div className="spiral-wrapper">
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="spiral-ring" />
+                    ))}
+                  </div>
+
+                  {/* Right Side: Portada */}
+                  <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                    <div className="text-center w-full pt-1">
+                      <span className={`${state.subjectGraphicStyle} text-xl sm:text-2xl font-black block truncate px-1`}>
+                        {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+                      </span>
+                    </div>
+                    
+                    <div className="my-auto py-1">
+                      <img
+                        src={state.characterImg}
+                        alt={state.characterName}
+                        className="w-24 sm:w-28 h-24 sm:h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                      />
+                    </div>
+
+                    <div className="text-center w-full pb-1">
+                      <span 
+                        className="text-slate-900 text-sm sm:text-base font-bold block truncate px-1"
+                        style={{ fontFamily: state.studentFont }}
+                      >
+                        {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
+                        {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* CONTINUOUS WRAP COVER WITH FLAT SPINE */
+                <>
+                  {/* Left Side: Contraportada */}
+                  <div className="cover-back flex-1 flex flex-col justify-end items-center p-3">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                      Contraportada
+                    </span>
+                  </div>
+
+                  {/* Middle: Flat Spine */}
+                  <div 
+                    className="cover-spine" 
+                    style={{ width: `${Math.max(20, (spineCm / ((widthCm * 2) + spineCm)) * 100)}%` }}
                   >
-                    {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
-                    {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
-                  </span>
-                </div>
-              </div>
+                    <span className="spine-text">
+                      {state.omitSubject ? '' : (state.spineText || state.subject)}
+                    </span>
+                  </div>
+
+                  {/* Right Side: Portada */}
+                  <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                    <div className="text-center w-full pt-1">
+                      <span className={`${state.subjectGraphicStyle} text-xl sm:text-2xl font-black block truncate px-1`}>
+                        {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
+                      </span>
+                    </div>
+                    
+                    <div className="my-auto py-1">
+                      <img
+                        src={state.characterImg}
+                        alt={state.characterName}
+                        className="w-24 sm:w-28 h-24 sm:h-28 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                      />
+                    </div>
+
+                    <div className="text-center w-full pb-1">
+                      <span 
+                        className="text-slate-900 text-sm sm:text-base font-bold block truncate px-1"
+                        style={{ fontFamily: state.studentFont }}
+                      >
+                        {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
+                        {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <p className="text-[11px] text-slate-400 mt-6 text-center">
-              * Papel Adhesivo MATE. El color liso seleccionado ({state.bgColor}) cubrirá la totalidad de la libreta.
+              * Papel Adhesivo MATE. Las proporciones de la vista en pantalla se adaptan automáticamente a tus medidas.
             </p>
 
           </div>

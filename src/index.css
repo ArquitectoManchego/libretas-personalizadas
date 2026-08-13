@@ -73,10 +73,10 @@
 /* 3D Continuous Cover Folded Perspective Simulation */
 .notebook-continuous-wrapper {
   display: flex;
-  height: 380px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
 }
 
 .cover-back {
@@ -87,11 +87,10 @@
   justify-content: flex-end;
   align-items: center;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
-  background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 15%);
+  background: linear-gradient(90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 15%);
 }
 
 .cover-spine {
-  width: 32px;
   background: rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
@@ -118,4 +117,35 @@
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(-90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 15%);
+}
+
+/* Open Spiral Notebook Realistic Styles */
+.spiral-wrapper {
+  display: flex;
+  width: 28px;
+  height: 100%;
+  background: #E2E8F0;
+  position: relative;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+}
+
+.spiral-ring {
+  width: 36px;
+  height: 10px;
+  background: linear-gradient(180deg, #CBD5E1 0%, #475569 50%, #94A3B8 100%);
+  border-radius: 6px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+  z-index: 10;
+  transform: translateX(-4px) rotate(-4deg);
+}
+
+.spiral-hole {
+  width: 6px;
+  height: 6px;
+  background: #334155;
+  border-radius: 50%;
+  position: absolute;
 }
