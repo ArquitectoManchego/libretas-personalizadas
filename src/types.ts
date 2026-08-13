@@ -4,25 +4,33 @@ export interface DesignItem {
   category: 'infantil' | 'harry_potter';
   characterName: string;
   characterImg: string;
-  image?: string; // Real photograph for catalog
+  image?: string;
   bgColor: string;
   bgType: 'solid' | 'full_pattern' | 'full_image';
   bgImage?: string;
   defaultSubject: string;
   defaultStudentName: string;
+  defaultGradeGroup?: string;
   subjectFont: string;
   studentFont: string;
-  subjectGraphicStyle: string; // e.g. 'style-pop', 'style-3d-gold', 'style-neon'
+  subjectGraphicStyle: string;
   description: string;
   isPopular?: boolean;
+  isStickerProduct?: boolean; // For inf-9
 }
 
 export interface CartItem {
   cartId: string;
   designId?: string;
   isCustom: boolean;
+  isStickerProduct?: boolean;
+  stickerOption?: '8_cut' | '32_sheet';
   subject: string;
   studentName: string;
+  gradeGroup?: string;
+  omitSubject?: boolean;
+  omitStudentName?: boolean;
+  omitGradeGroup?: boolean;
   bgColor: string;
   bgType: 'solid' | 'full_pattern' | 'full_image';
   bgImage?: string;
@@ -34,14 +42,24 @@ export interface CartItem {
   subjectGraphicStyle: string;
   spineText: string;
   quantity: number;
-  isPackage: boolean; // true = pack of 6, false = individual
+  isPackage: boolean;
   unitPrice: number;
   totalPrice: number;
+  
+  // Dimensions
+  notebookType?: 'espiral' | 'sin_espiral';
+  notebookWidth?: string;
+  notebookHeight?: string;
+  notebookSpine?: string;
 }
 
 export interface CustomizationState {
   subject: string;
   studentName: string;
+  gradeGroup: string;
+  omitSubject: boolean;
+  omitStudentName: boolean;
+  omitGradeGroup: boolean;
   bgColor: string;
   bgType: 'solid' | 'full_pattern' | 'full_image';
   bgImage: string;
@@ -52,4 +70,10 @@ export interface CustomizationState {
   subjectGraphicStyle: string;
   spineText: string;
   isPackage: boolean;
+  
+  // Notebook dimensions
+  notebookType: 'espiral' | 'sin_espiral';
+  notebookWidth: string;
+  notebookHeight: string;
+  notebookSpine: string;
 }

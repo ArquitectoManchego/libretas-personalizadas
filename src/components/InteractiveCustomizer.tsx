@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CustomizationState, CartItem } from '../types';
 import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
-import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft } from 'lucide-react';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -13,6 +13,10 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
   const [state, setState] = useState<CustomizationState>({
     subject: 'MATEMÁTICAS',
     studentName: 'Sofía Pérez',
+    gradeGroup: '2° A',
+    omitSubject: false,
+    omitStudentName: false,
+    omitGradeGroup: false,
     bgColor: '#FFB6C1',
     bgType: 'solid',
     bgImage: '',
@@ -22,7 +26,13 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     studentFont: 'Pacifico',
     subjectGraphicStyle: 'style-pop-pink',
     spineText: 'MATEMÁTICAS',
-    isPackage: true
+    isPackage: true,
+    
+    // Notebook dimensions
+    notebookType: 'espiral',
+    notebookWidth: '19.5 cm',
+    notebookHeight: '26 cm',
+    notebookSpine: '1.2 cm'
   });
 
   const [customCharUrl, setCustomCharUrl] = useState('');
@@ -52,8 +62,12 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     const cartItem: CartItem = {
       cartId: 'CUST-' + Date.now(),
       isCustom: true,
-      subject: state.subject,
-      studentName: state.studentName,
+      subject: state.omitSubject ? '(Sin Materia)' : state.subject,
+      studentName: state.omitStudentName ? '(Sin Nombre)' : state.studentName,
+      gradeGroup: state.omitGradeGroup ? '(Sin Grado/Grupo)' : state.gradeGroup,
+      omitSubject: state.omitSubject,
+      omitStudentName: state.omitStudentName,
+      omitGradeGroup: state.omitGradeGroup,
       bgColor: state.bgColor,
       bgType: state.bgType,
       bgImage: state.bgImage,
@@ -62,11 +76,17 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       subjectFont: state.subjectFont,
       studentFont: state.studentFont,
       subjectGraphicStyle: state.subjectGraphicStyle,
-      spineText: state.spineText || state.subject,
+      spineText: state.omitSubject ? '' : (state.spineText || state.subject),
       quantity: quantity,
       isPackage: state.isPackage,
       unitPrice: unitPrice,
-      totalPrice: totalPrice
+      totalPrice: totalPrice,
+      
+      // Dimensions
+      notebookType: state.notebookType,
+      notebookWidth: state.notebookWidth,
+      notebookHeight: state.notebookHeight,
+      notebookSpine: state.notebookType === 'sin_espiral' ? state.notebookSpine : undefined
     };
 
     onAddToCart(cartItem);
@@ -124,13 +144,13 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               </div>
               {/* Spine */}
               <div className="cover-spine">
-                <span className="spine-text">{state.spineText || state.subject}</span>
+                <span className="spine-text">{state.omitSubject ? '' : (state.spineText || state.subject)}</span>
               </div>
               {/* Front Cover */}
               <div className="cover-front">
                 <div className="text-center w-full pt-2">
                   <span className={`${state.subjectGraphicStyle} text-2xl font-black block truncate px-1`}>
-                    {state.subject || 'MATERIA'}
+                    {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
                   </span>
                 </div>
                 
@@ -144,17 +164,18 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
                 <div className="text-center w-full pb-2">
                   <span 
-                    className="text-slate-900 text-lg font-bold block truncate px-1"
+                    className="text-slate-900 text-base font-bold block truncate px-1"
                     style={{ fontFamily: state.studentFont }}
                   >
-                    {state.studentName || 'Nombre del Alumno'}
+                    {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
+                    {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
                   </span>
                 </div>
               </div>
             </div>
 
             <p className="text-[11px] text-slate-400 mt-6 text-center">
-              * El color liso seleccionado ({state.bgColor}) cubrirá la totalidad de la libreta para cumplir el código escolar.
+              * Papel Adhesivo MATE. El color liso seleccionado ({state.bgColor}) cubrirá la totalidad de la libreta.
             </p>
 
           </div>
@@ -177,7 +198,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               </div>
             </div>
 
-            <div className="space-y-4 pt-2 border-t border-slate-100">
+            <div className="space-y-5 pt-2 border-t border-slate-100">
               
               {/* Modalidad */}
               <div>
@@ -206,10 +227,118 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </div>
               </div>
 
+              {/* Notebook Dimensions Section */}
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Ruler className="w-4 h-4 text-indigo-600" />
+                  <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+                    2. Medidas Exactas de la Libreta
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Tipo de Encuadernación</label>
+                  <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setState(prev => ({ ...prev, notebookType: 'espiral' }))}
+                      className={`p-2.5 rounded-xl border transition-all ${
+                        state.notebookType === 'espiral' 
+                          ? 'border-indigo-600 bg-white text-indigo-950 font-bold shadow-sm' 
+                          : 'border-slate-200 text-slate-600 hover:bg-white'
+                      }`}
+                    >
+                      🌀 Con Espiral
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setState(prev => ({ ...prev, notebookType: 'sin_espiral' }))}
+                      className={`p-2.5 rounded-xl border transition-all ${
+                        state.notebookType === 'sin_espiral' 
+                          ? 'border-indigo-600 bg-white text-indigo-950 font-bold shadow-sm' 
+                          : 'border-slate-200 text-slate-600 hover:bg-white'
+                      }`}
+                    >
+                      📘 Sin Espiral (Cosida / Dura)
+                    </button>
+                  </div>
+                </div>
+
+                {state.notebookType === 'espiral' ? (
+                  <div className="space-y-2 pt-1">
+                    <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                      <HelpCircle className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
+                      Mide desde el borde exterior de la pasta hasta el inicio de la espiral.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700">Ancho (borde a espiral)</label>
+                        <input 
+                          type="text" 
+                          value={state.notebookWidth}
+                          onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none"
+                          placeholder="ej. 19.5 cm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-700">Alto de la libreta</label>
+                        <input 
+                          type="text" 
+                          value={state.notebookHeight}
+                          onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs font-semibold text-slate-900 outline-none"
+                          placeholder="ej. 26 cm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-1">
+                    <p className="text-[11px] text-slate-500 flex items-center gap-1">
+                      <HelpCircle className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
+                      Ingresa el ancho, alto y el grosor (espesor) del lomo de la libreta.
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-700">Ancho</label>
+                        <input 
+                          type="text" 
+                          value={state.notebookWidth}
+                          onChange={(e) => setState(prev => ({ ...prev, notebookWidth: e.target.value }))}
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          placeholder="20 cm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-700">Alto</label>
+                        <input 
+                          type="text" 
+                          value={state.notebookHeight}
+                          onChange={(e) => setState(prev => ({ ...prev, notebookHeight: e.target.value }))}
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          placeholder="26 cm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-700">Lomo (grosor)</label>
+                        <input 
+                          type="text" 
+                          value={state.notebookSpine}
+                          onChange={(e) => setState(prev => ({ ...prev, notebookSpine: e.target.value }))}
+                          className="w-full bg-white border border-slate-200 rounded-xl p-2 text-xs font-semibold text-slate-900 outline-none"
+                          placeholder="1.2 cm"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Color Presets */}
               <div>
                 <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Palette className="w-4 h-4 text-indigo-500" /> 2. Color de Fondo Reglamentario
+                  <Palette className="w-4 h-4 text-indigo-500" /> 3. Color de Fondo
                 </label>
                 <div className="grid grid-cols-5 gap-2">
                   {COLOR_PRESETS.map((color) => (
@@ -229,7 +358,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               {/* Character Upload */}
               <div>
                 <label className="block text-xs font-extrabold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Image className="w-4 h-4 text-indigo-500" /> 3. Imagen o Logo Central (PNG)
+                  <Image className="w-4 h-4 text-indigo-500" /> 4. Imagen o Logo Central (PNG)
                 </label>
                 <label className="flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50 hover:bg-indigo-50/50 cursor-pointer rounded-2xl text-xs font-bold text-slate-700 transition-colors">
                   <Upload className="w-4 h-4 text-indigo-500" />
@@ -238,53 +367,105 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 </label>
               </div>
 
-              {/* Text Controls */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Text Controls & Opt-outs */}
+              <div className="space-y-3">
+                
+                {/* Materia */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Materia</label>
-                  <input 
-                    type="text" 
-                    value={state.subject}
-                    onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
-                  />
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-slate-700">Materia</label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="text" 
+                      disabled={state.omitSubject}
+                      value={state.subject}
+                      onChange={(e) => setState(prev => ({ ...prev, subject: e.target.value, spineText: e.target.value }))}
+                      className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                        state.omitSubject ? 'bg-slate-100 text-slate-400 line-through' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
+                    />
+                    <select
+                      value={state.subjectGraphicStyle}
+                      onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none"
+                    >
+                      {GRAPHIC_STYLES.map((style) => (
+                        <option key={style.id} value={style.id}>{style.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input 
+                      type="checkbox" 
+                      checked={state.omitSubject} 
+                      onChange={(e) => setState(prev => ({ ...prev, omitSubject: e.target.checked }))} 
+                      className="w-3.5 h-3.5 rounded text-indigo-600"
+                    />
+                    <span className="text-[11px] text-slate-600">Omitir materia</span>
+                  </label>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Estilo de Materia</label>
-                  <select
-                    value={state.subjectGraphicStyle}
-                    onChange={(e) => setState(prev => ({ ...prev, subjectGraphicStyle: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
-                  >
-                    {GRAPHIC_STYLES.map((style) => (
-                      <option key={style.id} value={style.id}>{style.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
+                {/* Student Name */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Alumno</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-slate-700">Nombre Alumno</label>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input 
+                      type="text" 
+                      disabled={state.omitStudentName}
+                      value={state.studentName}
+                      onChange={(e) => setState(prev => ({ ...prev, studentName: e.target.value }))}
+                      className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                        state.omitStudentName ? 'bg-slate-100 text-slate-400 line-through' : 'bg-slate-50 border-slate-200 text-slate-900'
+                      }`}
+                    />
+                    <select
+                      value={state.studentFont}
+                      onChange={(e) => setState(prev => ({ ...prev, studentFont: e.target.value }))}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-bold text-slate-900 outline-none"
+                    >
+                      {FONT_OPTIONS_STUDENT.map((font) => (
+                        <option key={font.value} value={font.value}>{font.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input 
+                      type="checkbox" 
+                      checked={state.omitStudentName} 
+                      onChange={(e) => setState(prev => ({ ...prev, omitStudentName: e.target.checked }))} 
+                      className="w-3.5 h-3.5 rounded text-indigo-600"
+                    />
+                    <span className="text-[11px] text-slate-600">Omitir nombre del alumno</span>
+                  </label>
+                </div>
+
+                {/* Grade and Group */}
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">Grado y Grupo</label>
                   <input 
                     type="text" 
-                    value={state.studentName}
-                    onChange={(e) => setState(prev => ({ ...prev, studentName: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
+                    disabled={state.omitGradeGroup}
+                    value={state.gradeGroup}
+                    onChange={(e) => setState(prev => ({ ...prev, gradeGroup: e.target.value }))}
+                    className={`w-full border rounded-xl p-2.5 text-xs font-bold outline-none ${
+                      state.omitGradeGroup ? 'bg-slate-100 text-slate-400 line-through' : 'bg-slate-50 border-slate-200 text-slate-900'
+                    }`}
+                    placeholder="Ej. 2° A"
                   />
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input 
+                      type="checkbox" 
+                      checked={state.omitGradeGroup} 
+                      onChange={(e) => setState(prev => ({ ...prev, omitGradeGroup: e.target.checked }))} 
+                      className="w-3.5 h-3.5 rounded text-indigo-600"
+                    />
+                    <span className="text-[11px] text-slate-600">Omitir grado y grupo</span>
+                  </label>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tipografía Alumno</label>
-                  <select
-                    value={state.studentFont}
-                    onChange={(e) => setState(prev => ({ ...prev, studentFont: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-bold text-slate-900 outline-none"
-                  >
-                    {FONT_OPTIONS_STUDENT.map((font) => (
-                      <option key={font.value} value={font.value}>{font.name}</option>
-                    ))}
-                  </select>
-                </div>
+
               </div>
 
               {/* CTA */}

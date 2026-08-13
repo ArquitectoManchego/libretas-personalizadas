@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { CartItem } from '../types';
 import { saveOrderToFirebase } from '../firebase';
 import confetti from 'canvas-confetti';
-import { X, Trash2, Send, ShoppingBag, Sparkles } from 'lucide-react';
+import { X, Trash2, Send, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CartDrawerProps {
@@ -49,16 +49,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     if (customerName) message += `👤 *Cliente:* ${customerName}\n`;
     if (customerPhone) message += `📞 *Teléfono:* ${customerPhone}\n`;
     message += `──────────────────\n`;
-    message += `📦 *DETALLE DE LIBRETAS EN MI PEDIDO:*\n\n`;
+    message += `📦 *DETALLE DE MI PEDIDO:*\n\n`;
 
     cart.forEach((item, index) => {
-      const modeLabel = item.isPackage ? 'Paquete 6 ($' + item.unitPrice + ' c/u)' : 'Individual ($' + item.unitPrice + ')';
-      
-      message += `*${index + 1}. ${item.subject.toUpperCase()}*\n`;
-      message += `   • Alumno: ${item.studentName}\n`;
-      message += `   • Modalidad: ${modeLabel}\n`;
-      if(item.isCustom) message += `   • Personaje: ${item.characterName}\n`;
-      message += `   • Subtotal: $${item.totalPrice} MXN\n\n`;
+      if (item.isStickerProduct) {
+        const stickerLabel = item.stickerOption === '8_cut' ? '8 Stickers Recortados ($80 MXN)' : 'Hoja Completa 32 Stickers ($150 MXN)';
+        message += `*${index + 1}. PLANILLA DE STICKERS*\n`;
+        message += `   • Modalidad: ${stickerLabel}\n`;
+        message += `   • Alumno: ${item.studentName}\n`;
+        if (item.gradeGroup) message += `   • Grado/Grupo: ${item.gradeGroup}\n`;
+        message += `   • Subtotal: $${item.totalPrice} MXN\n\n`;
+      } else {
+        const modeLabel = item.isPackage ? 'Paquete 6 ($' + item.unitPrice + ' c/u)' : 'Individual ($' + item.unitPrice + ')';
+        message += `*${index + 1}. FORRO: ${item.subject.toUpperCase()}*\n`;
+        message += `   • Alumno: ${item.studentName}\n`;
+        if (item.gradeGroup) message += `   • Grado/Grupo: ${item.gradeGroup}\n`;
+        message += `   • Modalidad: ${modeLabel}\n`;
+        if (item.notebookType) {
+          if (item.notebookType === 'espiral') {
+            message += `   • Libreta Con Espiral (Ancho a espiral: ${item.notebookWidth}, Alto: ${item.notebookHeight})\n`;
+          } else {
+            message += `   • Libreta Sin Espiral (Ancho: ${item.notebookWidth}, Alto: ${item.notebookHeight}, Lomo: ${item.notebookSpine})\n`;
+          }
+        }
+        if (item.isCustom) message += `   • Personaje: ${item.characterName}\n`;
+        message += `   • Subtotal: $${item.totalPrice} MXN\n\n`;
+      }
     });
 
     message += `──────────────────\n`;
@@ -140,15 +156,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
 
                     {/* Information */}
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 text-xs">
                       <div className="flex justify-between items-start">
-                        <h4 className="text-xs font-extrabold text-slate-900 truncate">{item.subject}</h4>
-                        <span className="text-xs font-black text-slate-900 ml-2">${item.totalPrice}</span>
+                        <h4 className="font-extrabold text-slate-900 truncate">
+                          {item.isStickerProduct ? 'Planilla de Stickers' : item.subject}
+                        </h4>
+                        <span className="font-black text-slate-900 ml-2">${item.totalPrice}</span>
                       </div>
-                      <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">Alumno: {item.studentName}</p>
-                      <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md mt-1">
-                        {item.isPackage ? 'Paquete 6 ($' + item.unitPrice + ' c/u)' : '1 Libreta ($' + item.unitPrice + ')'}
-                      </span>
+                      
+                      <p className="font-medium text-slate-500 truncate mt-0.5">Alumno: {item.studentName}</p>
+                      {item.gradeGroup && <p className="text-[11px] text-slate-500">Grado/Grupo: {item.gradeGroup}</p>}
+                      
+                      {item.isStickerProduct ? (
+                        <span className="inline-block text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md mt-1">
+                          {item.stickerOption === '8_cut' ? '8 Stickers recortados ($80)' : '32 Stickers en hoja ($150)'}
+                        </span>
+                      ) : (
+                        <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md mt-1">
+                          {item.isPackage ? 'Paquete 6 ($' + item.unitPrice + ' c/u)' : '1 Libreta ($' + item.unitPrice + ')'}
+                        </span>
+                      )}
+
+                      {item.notebookWidth && (
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          Medidas: {item.notebookWidth} x {item.notebookHeight} {item.notebookSpine ? `(Lomo ${item.notebookSpine})` : ''}
+                        </p>
+                      )}
                     </div>
 
                     {/* Delete Button */}
