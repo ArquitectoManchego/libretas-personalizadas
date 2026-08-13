@@ -10,8 +10,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-01',
     codeNumber: 1,
-    name: 'Estilo 1 - Bestie Stylish Lettering',
-    label: 'Estilo 1 - Bestie Stylish Lettering',
+    name: 'Estilo 1 - Bestie Stylish',
+    label: 'Estilo 1 - Bestie Stylish',
     image: '/images/styles/bestie-stylish-text-effect-editable-modern-lettering-typography-font-style_314614-1685.jpg'
   },
   {
@@ -38,22 +38,22 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-05',
     codeNumber: 5,
-    name: 'Estilo 5 - Claire Voyant Logo',
-    label: 'Estilo 5 - Claire Voyant Logo',
+    name: 'Estilo 5 - Claire Voyant',
+    label: 'Estilo 5 - Claire Voyant',
     image: '/images/styles/claire-voyant-logo-text-design_1308-78902.jpg'
   },
   {
     id: 'style-06',
     codeNumber: 6,
-    name: 'Estilo 6 - Cool Charm Cartoon',
-    label: 'Estilo 6 - Cool Charm Cartoon',
+    name: 'Estilo 6 - Cool Charm',
+    label: 'Estilo 6 - Cool Charm',
     image: '/images/styles/cool-charm-cartoon-text-effect_36662-1280.jpg'
   },
   {
     id: 'style-07',
     codeNumber: 7,
-    name: 'Estilo 7 - Creative Sticker Marketing Poster',
-    label: 'Estilo 7 - Creative Sticker Marketing Poster',
+    name: 'Estilo 7 - Creative Sticker',
+    label: 'Estilo 7 - Creative Sticker',
     image: '/images/styles/creative-sticker-marketing-text-effect-editable-modern-poster-text-style_314614-4469.jpg'
   },
   {
@@ -66,8 +66,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-09',
     codeNumber: 9,
-    name: 'Estilo 9 - Creative Headline',
-    label: 'Estilo 9 - Creative Headline',
+    name: 'Estilo 9 - Creative',
+    label: 'Estilo 9 - Creative',
     image: '/images/styles/creative-text-effect-editable-modern-headline-text-style_314614-1335.jpg'
   },
   {
@@ -94,8 +94,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-13',
     codeNumber: 13,
-    name: 'Estilo 13 - Dynamic 3d Red White',
-    label: 'Estilo 13 - Dynamic 3d Red White',
+    name: 'Estilo 13 - Dynamic 3d',
+    label: 'Estilo 13 - Dynamic 3d',
     image: '/images/styles/dynamic-3d-text-effect-editable-red-white-style-illustrator_1313198-4426.jpg'
   },
   {
@@ -122,8 +122,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-17',
     codeNumber: 17,
-    name: 'Estilo 17 - Emote Icon Trendy Customizable',
-    label: 'Estilo 17 - Emote Icon Trendy Customizable',
+    name: 'Estilo 17 - Emote Icon',
+    label: 'Estilo 17 - Emote Icon',
     image: '/images/styles/editable-text-effect-editable-emote-icon-trendy-customizable-font-style_314614-4867.jpg'
   },
   {
@@ -136,22 +136,22 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-19',
     codeNumber: 19,
-    name: 'Estilo 19 - Editable Text',
-    label: 'Estilo 19 - Editable Text',
+    name: 'Estilo 19 - Editable',
+    label: 'Estilo 19 - Editable',
     image: '/images/styles/editable-text-effect-illustrator-vector-graphic-style_458817-720.jpg'
   },
   {
     id: 'style-20',
     codeNumber: 20,
-    name: 'Estilo 20 - Editable Text',
-    label: 'Estilo 20 - Editable Text',
+    name: 'Estilo 20 - Editable',
+    label: 'Estilo 20 - Editable',
     image: '/images/styles/editable-text-effect-illustrator_458817-105.jpg'
   },
   {
     id: 'style-21',
     codeNumber: 21,
-    name: 'Estilo 21 - Editable Text',
-    label: 'Estilo 21 - Editable Text',
+    name: 'Estilo 21 - Editable',
+    label: 'Estilo 21 - Editable',
     image: '/images/styles/editable-text-effect_92267-96.jpg'
   },
   {
@@ -171,8 +171,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-24',
     codeNumber: 24,
-    name: 'Estilo 24 - Hero Sticker Label Cartoon',
-    label: 'Estilo 24 - Hero Sticker Label Cartoon',
+    name: 'Estilo 24 - Hero Sticker',
+    label: 'Estilo 24 - Hero Sticker',
     image: '/images/styles/hero-sticker-label-editable-cartoon-text-effect_36662-627.jpg'
   },
   {
@@ -206,8 +206,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-29',
     codeNumber: 29,
-    name: 'Estilo 29 - Illustrator Graphic',
-    label: 'Estilo 29 - Illustrator Graphic',
+    name: 'Estilo 29 - Illustrator',
+    label: 'Estilo 29 - Illustrator',
     image: '/images/styles/illustrator-graphic-style-editable-typography_32210-53.jpg'
   },
   {
@@ -227,8 +227,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-32',
     codeNumber: 32,
-    name: 'Estilo 32 - 3d Cartoon Effecf Cloud',
-    label: 'Estilo 32 - 3d Cartoon Effecf Cloud',
+    name: 'Estilo 32 - 3d Cartoon',
+    label: 'Estilo 32 - 3d Cartoon',
     image: '/images/styles/modern-3d-cartoon-text-effecf-with-cloud-background_36662-1281.jpg'
   },
   {
@@ -255,8 +255,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-36',
     codeNumber: 36,
-    name: 'Estilo 36 - Pop Art Vibrant Iconic Customizable',
-    label: 'Estilo 36 - Pop Art Vibrant Iconic Customizable',
+    name: 'Estilo 36 - Pop Art',
+    label: 'Estilo 36 - Pop Art',
     image: '/images/styles/pop-art-text-effect-editable-vibrant-iconic-customizable-font-style_314614-3647.jpg'
   },
   {
@@ -269,29 +269,29 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-38',
     codeNumber: 38,
-    name: 'Estilo 38 - Retro Sticker 70s 80s',
-    label: 'Estilo 38 - Retro Sticker 70s 80s',
+    name: 'Estilo 38 - Retro Sticker',
+    label: 'Estilo 38 - Retro Sticker',
     image: '/images/styles/retro-sticker-text-effect-editable-70s-80s-text-style_314614-4999.jpg'
   },
   {
     id: 'style-39',
     codeNumber: 39,
-    name: 'Estilo 39 - Retro Sticker 70s 80s',
-    label: 'Estilo 39 - Retro Sticker 70s 80s',
+    name: 'Estilo 39 - Retro Sticker',
+    label: 'Estilo 39 - Retro Sticker',
     image: '/images/styles/retro-sticker-text-effect-editable-70s-80s-text-style_314614-5760.jpg'
   },
   {
     id: 'style-40',
     codeNumber: 40,
-    name: 'Estilo 40 - Retro Sticker 70s 80s',
-    label: 'Estilo 40 - Retro Sticker 70s 80s',
+    name: 'Estilo 40 - Retro Sticker',
+    label: 'Estilo 40 - Retro Sticker',
     image: '/images/styles/retro-sticker-text-effect-editable-70s-80s-text-style_314614-6357.jpg'
   },
   {
     id: 'style-41',
     codeNumber: 41,
-    name: 'Estilo 41 - Retro Vintage Cartoon Pop Art Smile',
-    label: 'Estilo 41 - Retro Vintage Cartoon Pop Art Smile',
+    name: 'Estilo 41 - Retro Cartoon',
+    label: 'Estilo 41 - Retro Cartoon',
     image: '/images/styles/retro-vintage-cartoon-text-effect-editable-pop-art-smile-text-style_314614-4278.jpg'
   },
   {
@@ -325,8 +325,8 @@ export const ILLUSTRATOR_STYLES: IllustratorStyleItem[] = [
   {
     id: 'style-46',
     codeNumber: 46,
-    name: 'Estilo 46 - Trend Shadow Vintage',
-    label: 'Estilo 46 - Trend Shadow Vintage',
+    name: 'Estilo 46 - Trend',
+    label: 'Estilo 46 - Trend',
     image: '/images/styles/trend-text-effect-editable-shadow-vintage-text-style_314614-1260.jpg'
   }
 ];
