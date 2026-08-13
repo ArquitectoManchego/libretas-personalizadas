@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { CustomizationState, CartItem } from '../types';
 import { CHARACTER_OPTIONS, FONT_OPTIONS_STUDENT, GRAPHIC_STYLES } from '../data/catalog';
-import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle } from 'lucide-react';
+import { Palette, Image, ShoppingBag, Upload, Sparkles, ArrowLeft, Ruler, HelpCircle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface InteractiveCustomizerProps {
@@ -37,7 +37,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
 
   const [customCharUrl, setCustomCharUrl] = useState('');
 
-  // Dimension Parser
+  // Dimension Parser with 15x15 cm minimum clamping
   const parseDimension = (val: string, fallback: number): number => {
     if (!val) return fallback;
     const match = val.match(/([\d.]+)/);
@@ -46,15 +46,26 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
     return isNaN(parsed) || parsed <= 0 ? fallback : parsed;
   };
 
-  const widthCm = parseDimension(state.notebookWidth, 19.5);
-  const heightCm = parseDimension(state.notebookHeight, 26);
+  const rawWidth = parseDimension(state.notebookWidth, 19.5);
+  const rawHeight = parseDimension(state.notebookHeight, 26);
+  
+  // Enforce 15x15 cm minimum cover dimensions
+  const widthCm = Math.max(15, rawWidth);
+  const heightCm = Math.max(15, rawHeight);
   const spineCm = parseDimension(state.notebookSpine, 1.2);
+
+  const isClamped = rawWidth < 15 || rawHeight < 15;
+
+  // Proportional Scaling Ratio (based on standard 26 cm height)
+  const scaleRatio = heightCm / 26;
+  const subjectFontSize = Math.max(14, Math.min(26, Math.round(20 * scaleRatio)));
+  const studentFontSize = Math.max(11, Math.min(16, Math.round(13 * scaleRatio)));
+  const characterImgPx = Math.max(64, Math.min(128, Math.round(96 * scaleRatio)));
 
   // Calculate dynamic pixels for real-time visual scaling
   const totalWidthCm = state.notebookType === 'espiral' ? (widthCm * 2) : ((widthCm * 2) + spineCm);
   const totalHeightCm = heightCm;
 
-  // Scale relative to standard notebook (39 cm total width x 26 cm height = 420px x 280px)
   const widthRatio = totalWidthCm / 39;
   const heightRatio = totalHeightCm / 26;
 
@@ -111,9 +122,9 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
       
       // Dimensions
       notebookType: state.notebookType,
-      notebookWidth: state.notebookWidth,
-      notebookHeight: state.notebookHeight,
-      notebookSpine: state.notebookType === 'sin_espiral' ? state.notebookSpine : undefined
+      notebookWidth: `${widthCm} cm`,
+      notebookHeight: `${heightCm} cm`,
+      notebookSpine: state.notebookType === 'sin_espiral' ? `${spineCm} cm` : undefined
     };
 
     onAddToCart(cartItem);
@@ -158,9 +169,16 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
               Previsualizador Proporcional Dinámico
             </div>
             
-            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-8">
-              {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral' : `Forro Extendido (Lomo ${spineCm} cm)`}
+            <div className="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full mb-3">
+              {state.notebookType === 'espiral' ? 'Libreta Abierta con Espiral Metálica 3D' : `Forro Extendido (Lomo ${spineCm} cm)`}
             </div>
+
+            {isClamped && (
+              <div className="mb-4 flex items-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                <span>Nota: El tamaño mínimo de portada es de 15 cm x 15 cm.</span>
+              </div>
+            )}
 
             {/* RULER CONTAINER FOR REACTION FEEDBACK */}
             <div className="relative flex items-center justify-center p-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
@@ -185,42 +203,52 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 }}
               >
                 {state.notebookType === 'espiral' ? (
-                  /* OPEN SPIRAL NOTEBOOK VIEW */
+                  /* OPEN SPIRAL NOTEBOOK VIEW WITH ULTRA-DENSE 3D WIRE LOOPS */
                   <>
                     {/* Left Side: Contraportada */}
-                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-3 relative">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-2 relative">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
                         Contraportada
                       </span>
                     </div>
 
-                    {/* Middle: 3D Metallic Spiral Spine */}
-                    <div className="spiral-wrapper">
-                      {[...Array(8)].map((_, i) => (
-                        <div key={i} className="spiral-ring" />
+                    {/* Middle: 3D Metallic Dense Spiral Spine (26 loops) */}
+                    <div className="spiral-spine-container">
+                      {[...Array(24)].map((_, i) => (
+                        <div key={i} className="spiral-wire-loop relative w-full flex items-center justify-between">
+                          <div className="spiral-hole-left" />
+                          <div className="spiral-hole-right" />
+                        </div>
                       ))}
                     </div>
 
-                    {/* Right Side: Portada */}
-                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                    {/* Right Side: Portada with Proportional Text/Image Scaling */}
+                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-2">
                       <div className="text-center w-full pt-1">
-                        <span className={`${state.subjectGraphicStyle} text-lg sm:text-xl font-black block truncate px-1`}>
+                        <span 
+                          className={`${state.subjectGraphicStyle} font-black block truncate px-1`}
+                          style={{ fontSize: `${subjectFontSize}px` }}
+                        >
                           {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
                         </span>
                       </div>
                       
-                      <div className="my-auto py-1">
+                      <div className="my-auto py-1 flex items-center justify-center">
                         <img
                           src={state.characterImg}
                           alt={state.characterName}
-                          className="w-20 sm:w-24 h-20 sm:h-24 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                          className="object-contain filter drop-shadow-xl transition-all duration-300 hover:scale-105"
+                          style={{ width: `${characterImgPx}px`, height: `${characterImgPx}px` }}
                         />
                       </div>
 
                       <div className="text-center w-full pb-1">
                         <span 
-                          className="text-slate-900 text-xs sm:text-sm font-bold block truncate px-1"
-                          style={{ fontFamily: state.studentFont }}
+                          className="text-slate-900 font-bold block truncate px-1"
+                          style={{ 
+                            fontFamily: state.studentFont,
+                            fontSize: `${studentFontSize}px`
+                          }}
                         >
                           {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
                           {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
@@ -232,8 +260,8 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                   /* CONTINUOUS WRAP COVER WITH FLAT SPINE */
                   <>
                     {/* Left Side: Contraportada */}
-                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-3">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                    <div className="cover-back flex-1 flex flex-col justify-end items-center p-2">
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-white/40 px-2 py-0.5 rounded-md backdrop-blur-sm">
                         Contraportada
                       </span>
                     </div>
@@ -248,26 +276,33 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                       </span>
                     </div>
 
-                    {/* Right Side: Portada */}
-                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-3">
+                    {/* Right Side: Portada with Proportional Text/Image Scaling */}
+                    <div className="cover-front flex-1 flex flex-col justify-between items-center p-2">
                       <div className="text-center w-full pt-1">
-                        <span className={`${state.subjectGraphicStyle} text-lg sm:text-xl font-black block truncate px-1`}>
+                        <span 
+                          className={`${state.subjectGraphicStyle} font-black block truncate px-1`}
+                          style={{ fontSize: `${subjectFontSize}px` }}
+                        >
                           {state.omitSubject ? '(SIN MATERIA)' : (state.subject || 'MATERIA')}
                         </span>
                       </div>
                       
-                      <div className="my-auto py-1">
+                      <div className="my-auto py-1 flex items-center justify-center">
                         <img
                           src={state.characterImg}
                           alt={state.characterName}
-                          className="w-20 sm:w-24 h-20 sm:h-24 object-contain filter drop-shadow-xl transition-transform duration-300 hover:scale-105"
+                          className="object-contain filter drop-shadow-xl transition-all duration-300 hover:scale-105"
+                          style={{ width: `${characterImgPx}px`, height: `${characterImgPx}px` }}
                         />
                       </div>
 
                       <div className="text-center w-full pb-1">
                         <span 
-                          className="text-slate-900 text-xs sm:text-sm font-bold block truncate px-1"
-                          style={{ fontFamily: state.studentFont }}
+                          className="text-slate-900 font-bold block truncate px-1"
+                          style={{ 
+                            fontFamily: state.studentFont,
+                            fontSize: `${studentFontSize}px`
+                          }}
                         >
                           {state.omitStudentName ? '(SIN NOMBRE)' : (state.studentName || 'Nombre del Alumno')}
                           {!state.omitGradeGroup && state.gradeGroup ? ` - ${state.gradeGroup}` : ''}
@@ -281,7 +316,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
             </div>
 
             <p className="text-[11px] text-slate-400 mt-6 text-center">
-              * Cambia las cifras de Ancho y Alto abajo para observar cómo se adapta el tamaño de la previsualización en vivo.
+              * Textos e imágenes se escalan proporcionalmente a las medidas de la portada.
             </p>
 
           </div>
@@ -338,7 +373,7 @@ export const InteractiveCustomizer: React.FC<InteractiveCustomizerProps> = ({ on
                 <div className="flex items-center gap-2">
                   <Ruler className="w-4 h-4 text-indigo-600" />
                   <label className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
-                    2. Medidas Exactas de la Libreta
+                    2. Medidas Exactas de la Libreta (Mín. 15x15 cm)
                   </label>
                 </div>
 
